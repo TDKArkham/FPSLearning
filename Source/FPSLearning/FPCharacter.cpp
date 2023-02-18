@@ -3,32 +3,46 @@
 
 #include "FPCharacter.h"
 
-// Sets default values
+
 AFPCharacter::AFPCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	
 }
 
-// Called when the game starts or when spawned
 void AFPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-// Called every frame
-void AFPCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
 void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAxis("MoveForward", this, &AFPCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AFPCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 }
 
+void AFPCharacter::MoveForward(float Axis)
+{
+	FRotator ControlRotation = GetControlRotation();
+	ControlRotation.Pitch = 0.0f;
+	ControlRotation.Roll = 0.0f;
+	
+	AddMovementInput(ControlRotation.Vector(), Axis);
+}
+
+void AFPCharacter::MoveRight(float Axis)
+{
+	FRotator ControlRotation = GetControlRotation();
+	ControlRotation.Pitch = 0.0f;
+	ControlRotation.Roll = 0.0f;
+	FVector RightVector = FRotationMatrix(ControlRotation).GetUnitAxis(EAxis::Y);
+
+	AddMovementInput(RightVector, Axis);
+}

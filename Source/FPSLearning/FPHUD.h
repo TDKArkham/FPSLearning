@@ -13,5 +13,7 @@ UCLASS()
 class FPSLEARNING_API AFPHUD : public AHUD
 {
 	GENERATED_BODY()
-	
+
+public:
+	virtual void DrawHUD() override;
 };
