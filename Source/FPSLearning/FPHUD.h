@@ -15,5 +15,6 @@ class FPSLEARNING_API AFPHUD : public AHUD
 	GENERATED_BODY()
 
 public:
+	// Same as override "ReceiveDrawHUD" function in Blueprint.
 	virtual void DrawHUD() override;
 };
