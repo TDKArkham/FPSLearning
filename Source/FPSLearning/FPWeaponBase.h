@@ -3,21 +3,21 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WeaponData.h"
 #include "GameFramework/Actor.h"
-#include "WeaponBase.generated.h"
+#include "WeaponData.h"
+#include "FPWeaponBase.generated.h"
 
 UCLASS()
-class FPSLEARNING_API AWeaponBase : public AActor
+class FPSLEARNING_API AFPWeaponBase : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	AWeaponBase();
+	AFPWeaponBase();
 
 protected:
 	virtual void BeginPlay() override;
-	
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USkeletalMeshComponent* SkeletalMeshComponent;
 

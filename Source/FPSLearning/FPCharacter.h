@@ -3,12 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "WeaponData.h"
 #include "GameFramework/Character.h"
 #include "FPCharacter.generated.h"
 
-class AWeaponBase;
 class UCameraComponent;
+class UFPWeaponSystemComponent;
 
 UCLASS()
 class FPSLEARNING_API AFPCharacter : public ACharacter
@@ -31,17 +30,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USkeletalMeshComponent* SkeletalMeshComponent;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	AWeaponBase* CurrentWeapon;
-
-	UPROPERTY(BlueprintReadOnly, Category="Weapon")
-	TArray<AWeaponBase*> WeaponSlots;
-
-	bool bIsSwitchingWeapon;
-
-	bool bIsReloading;
-
-	bool bCanShoot;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UFPWeaponSystemComponent* WeaponSystem;
 	
 	UFUNCTION()
 	void MoveForward(float Axis);
@@ -50,15 +40,6 @@ protected:
 	void MoveRight(float Axis);
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
-	ELoadOut LoadOut;
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void WeaponPickUp(TSubclassOf<AWeaponBase> WeaponToSpawn);
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void EquipWeapon(AWeaponBase* Weapon);
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void HideAndShowWeapon(AWeaponBase* Weapon);
+	UFUNCTION(BlueprintCallable, Category = "Mesh")
+	USkeletalMeshComponent* GetMeshComponent();
 };

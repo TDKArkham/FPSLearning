@@ -1,10 +1,10 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "WeaponBase.h"
+#include "FPWeaponBase.h"
 
 
-AWeaponBase::AWeaponBase()
+AFPWeaponBase::AFPWeaponBase()
 {
 	SkeletalMeshComponent = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("WeaponMesh"));
 	SkeletalMeshComponent->SetupAttachment(RootComponent);
@@ -13,9 +13,9 @@ AWeaponBase::AWeaponBase()
 	SocketName = "b_RightWeapon";
 }
 
-void AWeaponBase::BeginPlay()
+void AFPWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
