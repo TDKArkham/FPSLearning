@@ -29,7 +29,7 @@ void UFPWeaponSystemComponent::WeaponPickUp(TSubclassOf<AFPWeaponBase> WeaponToS
 		CurrentWeapon = WeaponSlots.Last();
 		if (CurrentWeapon)
 		{
-			const FAttachmentTransformRules TransformRules(EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, EAttachmentRule::KeepRelative, true);
+			const FAttachmentTransformRules TransformRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, false);
 			CurrentWeapon->AttachToComponent(OwnerCharacter->GetMeshComponent(), TransformRules, CurrentWeapon->SocketName);
 
 			EquipWeapon(CurrentWeapon);
@@ -57,6 +57,8 @@ void UFPWeaponSystemComponent::EquipWeapon(AFPWeaponBase* Weapon)
 		LoadOut = ELoadOut::ELO_HasWeapon;
 
 		// TODO: Add a delay here to reset bIsSwitchingWeapon & bCanShoot state.
+		bIsSwitchingWeapon = false;
+		bCanShoot = true;
 	}
 }
 
