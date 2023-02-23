@@ -11,6 +11,8 @@ AFPWeaponBase::AFPWeaponBase()
 	SkeletalMeshComponent->SetCastShadow(false);
 
 	SocketName = "b_RightWeapon";
+
+	BulletSpread = 350.0f;
 }
 
 void AFPWeaponBase::BeginPlay()

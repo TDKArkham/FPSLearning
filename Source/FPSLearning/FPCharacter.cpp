@@ -3,9 +3,11 @@
 
 #include "FPCharacter.h"
 
+#include "FPMainHUD.h"
 #include "FPWeaponBase.h"
 #include "FPWeaponSystemComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Blueprint/UserWidget.h"
 
 
 AFPCharacter::AFPCharacter()
@@ -24,6 +26,12 @@ void AFPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// TODO: Figure out why the hell this doesn't work.
+	/*MainHUD = CreateWidget<UFPMainHUD>(this, UFPMainHUD::StaticClass());
+	if (MainHUD)
+	{
+		MainHUD->AddToViewport();
+	}*/
 }
 
 void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -61,4 +69,9 @@ void AFPCharacter::MoveRight(float Axis)
 USkeletalMeshComponent* AFPCharacter::GetMeshComponent()
 {
 	return SkeletalMeshComponent;
+}
+
+UFPMainHUD* AFPCharacter::GetMainHUD()
+{
+	return MainHUD;
 }

@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class UFPWeaponSystemComponent;
+class UFPMainHUD;
 
 UCLASS()
 class FPSLEARNING_API AFPCharacter : public ACharacter
@@ -32,6 +33,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UFPWeaponSystemComponent* WeaponSystem;
+
+	UPROPERTY(BlueprintReadWrite, Category = "UI")
+	UFPMainHUD* MainHUD;
 	
 	UFUNCTION()
 	void MoveForward(float Axis);
@@ -40,6 +44,9 @@ protected:
 	void MoveRight(float Axis);
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "Mesh")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mesh")
 	USkeletalMeshComponent* GetMeshComponent();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "UI")
+	UFPMainHUD* GetMainHUD();
 };

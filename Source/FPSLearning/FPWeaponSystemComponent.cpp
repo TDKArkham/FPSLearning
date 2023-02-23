@@ -4,25 +4,27 @@
 #include "FPWeaponSystemComponent.h"
 
 #include "FPCharacter.h"
+#include "FPCrosshair.h"
 #include "FPWeaponBase.h"
 #include "WeaponData.h"
+#include "FPMainHUD.h"
 
 
 UFPWeaponSystemComponent::UFPWeaponSystemComponent()
 {
-
+	
 }
 
 void UFPWeaponSystemComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// TODO: Optimize the logic so it won't need to Cast Owner.
+	OwnerCharacter = Cast<AFPCharacter>(GetOwner());
 }
 
 void UFPWeaponSystemComponent::WeaponPickUp(TSubclassOf<AFPWeaponBase> WeaponToSpawn)
 {
-	// TODO: Optimize the logic so it won't need to Cast Owner.
-	AFPCharacter* OwnerCharacter = Cast<AFPCharacter>(GetOwner());
 	if (OwnerCharacter)
 	{
 		WeaponSlots.Add(GetWorld()->SpawnActor<AFPWeaponBase>(WeaponToSpawn, OwnerCharacter->GetActorTransform()));
@@ -55,10 +57,13 @@ void UFPWeaponSystemComponent::EquipWeapon(AFPWeaponBase* Weapon)
 		bIsSwitchingWeapon = true;
 		HideAndShowWeapon(Weapon);
 		LoadOut = ELoadOut::ELO_HasWeapon;
+		if(OwnerCharacter && OwnerCharacter->GetMainHUD())
+		{
+			OwnerCharacter->GetMainHUD()->Crosshair->CrosshairUpdate();
+		}
 
-		// TODO: Add a delay here to reset bIsSwitchingWeapon & bCanShoot state.
-		bIsSwitchingWeapon = false;
-		bCanShoot = true;
+		FTimerHandle ResetTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(ResetTimerHandle, this, &UFPWeaponSystemComponent::ResetStateFlag, 0.35f);
 	}
 }
 
@@ -74,7 +79,43 @@ void UFPWeaponSystemComponent::HideAndShowWeapon(AFPWeaponBase* Weapon)
 	}
 }
 
+void UFPWeaponSystemComponent::ResetStateFlag()
+{
+	bIsSwitchingWeapon = false;
+	bCanShoot = true;
+}
+
 UFPWeaponSystemComponent* UFPWeaponSystemComponent::GetWeaponSystemComponent(AActor* TargetActor)
 {
 	return Cast<UFPWeaponSystemComponent>(TargetActor->GetComponentByClass(StaticClass()));
+}
+
+AFPWeaponBase* UFPWeaponSystemComponent::GetCurrentWeapon()
+{
+	return CurrentWeapon;
+}
+
+TArray<AFPWeaponBase*> UFPWeaponSystemComponent::GetWeaponSlots()
+{
+	return WeaponSlots;
+}
+
+bool UFPWeaponSystemComponent::GetIsSwitchingWeapon() const
+{
+	return bIsSwitchingWeapon;
+}
+
+bool UFPWeaponSystemComponent::GetIsReloading() const
+{
+	return bIsReloading;
+}
+
+bool UFPWeaponSystemComponent::GetCanShoot() const
+{
+	return bCanShoot;
+}
+
+bool UFPWeaponSystemComponent::GetIsAiming() const
+{
+	return bIsAiming;
 }
