@@ -9,6 +9,7 @@
 class UCameraComponent;
 class UFPWeaponSystemComponent;
 class UFPMainHUD;
+class UTimelineComponent;
 
 UCLASS()
 class FPSLEARNING_API AFPCharacter : public ACharacter
@@ -36,6 +37,35 @@ protected:
 
 	UPROPERTY(BlueprintReadWrite, Category = "UI")
 	UFPMainHUD* MainHUD;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
+	UTimelineComponent* SprintTimeline;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
+	UCurveFloat* SprintCurve;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
+	bool bIsExhausted;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
+	bool bIsSprinting;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
+	float EnergyLevel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
+	float MaxWalkSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
+	float MaxSprintSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
+	float StaminaRecoverDelay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
+	float ExhaustedRecoverDelay;
+
+	FTimerHandle StaminaRecoverDelayHandle;
 	
 	UFUNCTION()
 	void MoveForward(float Axis);
@@ -43,7 +73,28 @@ protected:
 	UFUNCTION()
 	void MoveRight(float Axis);
 
+	UFUNCTION(Category = "Movement | Sprint")
+	void UpdatingTimeline(float Value);
+
+	UFUNCTION(Category = "Movement | Sprint")
+	void TimelineFinished(float Value);
+
+	UFUNCTION(Category = "Movement | Sprint")
+	void StaminaRecoverDelayFunc();
+
+	UFUNCTION(Category = "Movement | Sprint")
+	void ExhaustedRecoverDelayFunc();
+	
 public:
+	UFUNCTION(Category = "Movement | Sprint")
+	void StartSprinting();
+
+	UFUNCTION(Category = "Movement | Sprint")
+	void StopSprinting();
+
+	UFUNCTION(Category = "Movement | Sprint")
+	void Exhausted();
+	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mesh")
 	USkeletalMeshComponent* GetMeshComponent();
 

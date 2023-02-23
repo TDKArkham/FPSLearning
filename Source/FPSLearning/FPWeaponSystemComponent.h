@@ -23,22 +23,22 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UPROPERTY(BlueprintReadOnly, Category = "WeaponSystem | Weapon")
+	UPROPERTY(BlueprintReadWrite, Category = "WeaponSystem | Weapon")
 	AFPWeaponBase* CurrentWeapon;
 
 	UPROPERTY(BlueprintReadOnly, Category = "WeaponSystem | Weapon")
 	TArray<AFPWeaponBase*> WeaponSlots;
 
-	UPROPERTY(BlueprintReadOnly, Category = "WeaponSystem | CharacterState")
+	UPROPERTY(BlueprintReadWrite, Category = "WeaponSystem | CharacterState")
 	bool bIsSwitchingWeapon;
 
-	UPROPERTY(BlueprintReadOnly, Category = "WeaponSystem | CharacterState")
+	UPROPERTY(BlueprintReadWrite, Category = "WeaponSystem | CharacterState")
 	bool bIsReloading;
 
-	UPROPERTY(BlueprintReadOnly, Category = "WeaponSystem | CharacterState")
+	UPROPERTY(BlueprintReadWrite, Category = "WeaponSystem | CharacterState")
 	bool bCanShoot;
 
-	UPROPERTY(BlueprintReadOnly, Category = "WeaponSystem | CharacterState")
+	UPROPERTY(BlueprintReadWrite, Category = "WeaponSystem | CharacterState")
 	bool bIsAiming;
 
 	AFPCharacter* OwnerCharacter;
