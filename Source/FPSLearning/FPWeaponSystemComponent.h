@@ -7,6 +7,8 @@
 #include "WeaponData.h"
 #include "FPWeaponSystemComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAmmoChanged, int32, MagazineAmmo, int32, TotalAmmo, FText, AmmoType);
+
 class AFPWeaponBase;
 class AFPCharacter;
 
@@ -56,6 +58,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "WeaponSystem")
 	void HideAndShowWeapon(AFPWeaponBase* Weapon);
+
+	UPROPERTY(BlueprintAssignable, Category = "WeaponSystem | Delegate")
+	FOnAmmoChanged OnAmmoChanged;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponSystem | Weapon")
 	AFPWeaponBase* GetCurrentWeapon();

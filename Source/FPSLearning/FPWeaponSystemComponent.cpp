@@ -57,10 +57,13 @@ void UFPWeaponSystemComponent::EquipWeapon(AFPWeaponBase* Weapon)
 		bIsSwitchingWeapon = true;
 		HideAndShowWeapon(Weapon);
 		LoadOut = ELoadOut::ELO_HasWeapon;
+		
 		if(OwnerCharacter && OwnerCharacter->GetMainHUD())
 		{
 			OwnerCharacter->GetMainHUD()->Crosshair->CrosshairUpdate();
 		}
+
+		OnAmmoChanged.Broadcast(CurrentWeapon->MagazineAmmo, CurrentWeapon->TotalAmmo, CurrentWeapon->AmmoType);
 
 		FTimerHandle ResetTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(ResetTimerHandle, this, &UFPWeaponSystemComponent::ResetStateFlag, 0.35f);

@@ -22,12 +22,24 @@ protected:
 	USkeletalMeshComponent* SkeletalMeshComponent;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
 	EWeaponType WeaponType;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
-	FName SocketName;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
+	int32 ChamberAmmo;*/
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
+	int32 MagazineAmmo;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
+	int32 TotalAmmo;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
+	FText AmmoType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	float BulletSpread;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attachment")
+	FName SocketName;
 };

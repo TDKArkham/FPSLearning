@@ -10,9 +10,14 @@ AFPWeaponBase::AFPWeaponBase()
 	SkeletalMeshComponent->SetupAttachment(RootComponent);
 	SkeletalMeshComponent->SetCastShadow(false);
 
+	/*ChamberAmmo = 1;*/
+	MagazineAmmo = 30;
+	TotalAmmo = 200;
+	AmmoType = FText::FromString("[Auto]");
+
 	SocketName = "b_RightWeapon";
 
-	BulletSpread = 350.0f;
+	BulletSpread = 35.0f;
 }
 
 void AFPWeaponBase::BeginPlay()
