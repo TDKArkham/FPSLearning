@@ -35,6 +35,9 @@ void AFPCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	// TODO: Figure out why the hell this doesn't work.
+	// Now I understand that you have to pass a PlayerController instead of a "this" Character
+	// into the first parameter, if I use GetPlayerController() func or just set it to nullptr
+	// , this would work.
 	/*MainHUD = CreateWidget<UFPMainHUD>(this, UFPMainHUD::StaticClass());
 	if (MainHUD)
 	{
