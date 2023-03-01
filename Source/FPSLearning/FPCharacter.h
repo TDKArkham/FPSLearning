@@ -73,6 +73,9 @@ protected:
 	UFUNCTION()
 	void MoveRight(float Axis);
 
+	UFUNCTION()
+	void Fire();
+
 	UFUNCTION(Category = "Movement | Sprint")
 	void UpdatingTimeline(float Value);
 
@@ -94,6 +97,9 @@ public:
 
 	UFUNCTION(Category = "Movement | Sprint")
 	void Exhausted();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mesh")
+	UCameraComponent* GetCamera();
 	
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mesh")
 	USkeletalMeshComponent* GetMeshComponent();

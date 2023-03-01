@@ -71,6 +71,8 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &AFPCharacter::StartSprinting);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AFPCharacter::StopSprinting);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPCharacter::Fire);
 }
 
 void AFPCharacter::MoveForward(float Axis)
@@ -92,6 +94,14 @@ void AFPCharacter::MoveRight(float Axis)
 	AddMovementInput(RightVector, Axis);
 }
 
+void AFPCharacter::Fire()
+{
+	if (WeaponSystem->GetCanShoot() && WeaponSystem->GetCurrentWeapon())
+	{
+		WeaponSystem->GetCurrentWeapon()->StartShooting(this);
+	}
+}
+
 void AFPCharacter::StartSprinting()
 {
 	if (!WeaponSystem->GetIsAiming())
@@ -103,22 +113,22 @@ void AFPCharacter::StartSprinting()
 				if (!GetCharacterMovement()->IsFalling())
 				{
 					GetWorldTimerManager().ClearTimer(StaminaRecoverDelayHandle);
-					
+
 					GetCharacterMovement()->MaxWalkSpeed = MaxSprintSpeed;
 					bIsSprinting = true;
 
 					switch (WeaponSystem->LoadOut)
 					{
 					case ELoadOut::ELO_NoWeapon:
-					{
-						SprintTimeline->Play();
-						break;
-					}
+						{
+							SprintTimeline->Play();
+							break;
+						}
 					case ELoadOut::ELO_HasWeapon:
-					{
-						SprintTimeline->Play();
-						break;
-					}
+						{
+							SprintTimeline->Play();
+							break;
+						}
 					default:;
 					}
 				}
@@ -129,13 +139,13 @@ void AFPCharacter::StartSprinting()
 
 void AFPCharacter::StopSprinting()
 {
-	if(!bIsExhausted)
+	if (!bIsExhausted)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
 		bIsSprinting = false;
 
 		SprintTimeline->Stop();
-		
+
 		GetWorldTimerManager().SetTimer(StaminaRecoverDelayHandle, this, &AFPCharacter::StaminaRecoverDelayFunc, StaminaRecoverDelay);
 	}
 }
@@ -160,7 +170,7 @@ void AFPCharacter::TimelineFinished(float Value)
 	// TimelineFinishedFunc is ONLY called when play to the end or revers to the beginning.
 	// We use this check to make sure we won't call Exhausted() when it reverses to the beginning
 	// which happens after stamina recovered
-	if(EnergyLevel == 0.0f)
+	if (EnergyLevel == 0.0f)
 	{
 		Exhausted();
 	}
@@ -175,6 +185,11 @@ void AFPCharacter::ExhaustedRecoverDelayFunc()
 {
 	bIsExhausted = false;
 	SprintTimeline->ReverseFromEnd();
+}
+
+UCameraComponent* AFPCharacter::GetCamera()
+{
+	return Camera;
 }
 
 USkeletalMeshComponent* AFPCharacter::GetMeshComponent()
