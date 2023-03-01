@@ -61,6 +61,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "WeaponSystem | Delegate")
 	FOnAmmoChanged OnAmmoChanged;
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponSystem | Weapon")
+	bool AddAmmoToWeapon(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponSystem | Weapon")
 	AFPWeaponBase* GetCurrentWeapon();

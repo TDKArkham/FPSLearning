@@ -57,5 +57,5 @@ protected:
 	void OnEndMovement(FVector Delta);
 
 public:
-	void Interact_Implementation(AActor* InstigateActor);
+	void Interact_Implementation(AActor* InstigateActor) override;
 };

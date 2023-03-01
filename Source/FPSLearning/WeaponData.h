@@ -17,3 +17,14 @@ enum class EWeaponType : uint8
 	EWT_GrenadeLauncher	UMETA(DisplayName = "GrenadeLauncher"),
 	EWT_RocketLauncher	UMETA(DisplayName = "RocketLauncher"),
 };
+
+UENUM(BlueprintType)
+enum class EAmmoType : uint8
+{
+	EAT_PistolAmmo			UMETA(DisplayName = "PistolAmmo"),
+	EAT_ShotGunAmmo			UMETA(DisplayName = "ShotGunAmmo"),
+	EAT_AssaultRifleAmmo	UMETA(DisplayName = "AssaultRifleAmmo"),
+	EAT_SniperRifleAmmo		UMETA(DisplayName = "SniperRifleAmmo"),
+	EAT_GrenadeLauncherAmmo	UMETA(DisplayName = "GrenadeLauncherAmmo"),
+	EAT_RocketLauncherAmmo	UMETA(DisplayName = "RocketLauncherAmmo"),
+};

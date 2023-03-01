@@ -13,7 +13,7 @@ AFPWeaponBase::AFPWeaponBase()
 	/*ChamberAmmo = 1;*/
 	MagazineAmmo = 30;
 	TotalAmmo = 200;
-	AmmoType = FText::FromString("[Auto]");
+	AmmoTypeText = FText::FromString("[Auto]");
 
 	SocketName = "b_RightWeapon";
 
@@ -26,3 +26,12 @@ void AFPWeaponBase::BeginPlay()
 
 }
 
+bool AFPWeaponBase::AddTotalAmmo(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo)
+{
+	if(AcquiredAmmoType == AmmoType)
+	{
+		TotalAmmo += AcquiredAmmo;
+		return true;
+	}
+	return false;
+}

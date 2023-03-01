@@ -22,9 +22,6 @@ protected:
 	USkeletalMeshComponent* SkeletalMeshComponent;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
-	EWeaponType WeaponType;
-
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
 	int32 ChamberAmmo;*/
 	
@@ -34,12 +31,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
 	int32 TotalAmmo;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
+	EWeaponType WeaponType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
+	EAmmoType AmmoType;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
-	FText AmmoType;
+	FText AmmoTypeText;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	float BulletSpread;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attachment")
 	FName SocketName;
+
+	// TODO: Refactor things belong into Inventory System, the weapon shouldn't contain the info of total ammo.
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon | Ammo")
+	bool AddTotalAmmo(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo);
 };

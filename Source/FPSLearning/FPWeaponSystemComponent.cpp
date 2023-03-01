@@ -12,7 +12,7 @@
 
 UFPWeaponSystemComponent::UFPWeaponSystemComponent()
 {
-	
+
 }
 
 void UFPWeaponSystemComponent::BeginPlay()
@@ -57,13 +57,13 @@ void UFPWeaponSystemComponent::EquipWeapon(AFPWeaponBase* Weapon)
 		bIsSwitchingWeapon = true;
 		HideAndShowWeapon(Weapon);
 		LoadOut = ELoadOut::ELO_HasWeapon;
-		
-		if(OwnerCharacter && OwnerCharacter->GetMainHUD())
+
+		if (OwnerCharacter && OwnerCharacter->GetMainHUD())
 		{
 			OwnerCharacter->GetMainHUD()->Crosshair->CrosshairUpdate();
 		}
 
-		OnAmmoChanged.Broadcast(CurrentWeapon->MagazineAmmo, CurrentWeapon->TotalAmmo, CurrentWeapon->AmmoType);
+		OnAmmoChanged.Broadcast(CurrentWeapon->MagazineAmmo, CurrentWeapon->TotalAmmo, CurrentWeapon->AmmoTypeText);
 
 		FTimerHandle ResetTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(ResetTimerHandle, this, &UFPWeaponSystemComponent::ResetStateFlag, 0.35f);
@@ -86,6 +86,22 @@ void UFPWeaponSystemComponent::ResetStateFlag()
 {
 	bIsSwitchingWeapon = false;
 	bCanShoot = true;
+}
+
+bool UFPWeaponSystemComponent::AddAmmoToWeapon(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo)
+{
+	for (AFPWeaponBase* Weapon : WeaponSlots)
+	{
+		if (Weapon && Weapon->AddTotalAmmo(AcquiredAmmoType, AcquiredAmmo))
+		{
+			if (Weapon == CurrentWeapon)
+			{
+				OnAmmoChanged.Broadcast(CurrentWeapon->MagazineAmmo, CurrentWeapon->TotalAmmo, CurrentWeapon->AmmoTypeText);
+			}
+			return true;
+		}
+	}
+	return false;
 }
 
 UFPWeaponSystemComponent* UFPWeaponSystemComponent::GetWeaponSystemComponent(AActor* TargetActor)

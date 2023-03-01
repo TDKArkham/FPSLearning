@@ -32,8 +32,8 @@ void UFPWeaponInfo::NativeConstruct()
 			if (CurrentWeapon)
 			{
 				MagazineAmmoText->SetText(IntToFText(CurrentWeapon->MagazineAmmo, EBT_TwoBit));
-				ReservedAmmoText->SetText(IntToFText(CurrentWeapon->TotalAmmo - CurrentWeapon->MagazineAmmo, EBT_ThreeBit));
-				AmmoTypeText->SetText(CurrentWeapon->AmmoType);
+				ReservedAmmoText->SetText(IntToFText(CurrentWeapon->TotalAmmo, EBT_ThreeBit));
+				AmmoTypeText->SetText(CurrentWeapon->AmmoTypeText);
 			}
 		}
 	}
@@ -57,6 +57,6 @@ FText UFPWeaponInfo::IntToFText(int32 Num, EBitType Type)
 void UFPWeaponInfo::OnAmmoChanged(int32 MagazineAmmo, int32 TotalAmmo, FText AmmoType)
 {
 	MagazineAmmoText->SetText(IntToFText(MagazineAmmo, EBT_TwoBit));
-	ReservedAmmoText->SetText(IntToFText(TotalAmmo - MagazineAmmo, EBT_ThreeBit));
+	ReservedAmmoText->SetText(IntToFText(TotalAmmo, EBT_ThreeBit));
 	AmmoTypeText->SetText(AmmoType);
 }
