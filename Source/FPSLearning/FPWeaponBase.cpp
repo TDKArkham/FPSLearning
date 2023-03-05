@@ -20,7 +20,7 @@ AFPWeaponBase::AFPWeaponBase()
 	MagazineAmmo = 30;
 	TotalAmmo = 200;
 	AmmoTypeText = FText::FromString("[Auto]");
-
+	
 	SocketName = "b_RightWeapon";
 
 	BulletSpread = 35.0f;
@@ -30,7 +30,8 @@ AFPWeaponBase::AFPWeaponBase()
 void AFPWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	CurrentAmmo = MagazineAmmo;
 }
 
 FHitResult AFPWeaponBase::CalculateLineTrace(AFPCharacter* Player)
@@ -69,6 +70,22 @@ FHitResult AFPWeaponBase::CalculateLineTrace(AFPCharacter* Player)
 
 void AFPWeaponBase::StartShooting(AFPCharacter* InstigateActor)
 {
+	if (CurrentAmmo <= 0)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), DryFireSound);
+		return;
+	}
+
+	CurrentAmmo -= 1;
+	if (CurrentAmmo <= 0)
+	{
+		// Only auto reload when using Grenade Launcher or Rocket Launcher.
+		if (WeaponType == EWeaponType::EWT_GrenadeLauncher || WeaponType == EWeaponType::EWT_GrenadeLauncher)
+		{
+			AutoReloadOnEmpty(InstigateActor);
+		}
+	}
+
 	switch (FireType)
 	{
 	case EFireType::EFT_HitScan:
@@ -81,6 +98,13 @@ void AFPWeaponBase::StartShooting(AFPCharacter* InstigateActor)
 			break;
 		}
 	}
+
+	bIsShooting = true;
+}
+
+void AFPWeaponBase::StopShooting(/*AFPCharacter* InstigateActor*/)
+{
+	bIsShooting = false;
 }
 
 bool AFPWeaponBase::AddTotalAmmo(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo)
@@ -91,4 +115,69 @@ bool AFPWeaponBase::AddTotalAmmo(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo)
 		return true;
 	}
 	return false;
+}
+
+void AFPWeaponBase::AutoReloadOnEmpty(AFPCharacter* InstigateActor)
+{
+	/*if (WeaponType == EWeaponType::EWT_SniperRifle)
+	{
+		FTimerHandle AutoReloadHandle;
+		FTimerDelegate Delegate;
+		Delegate.BindUFunction(this, "AutoReloadOnEmpty_TimeElapsed", InstigateActor);
+		GetWorld()->GetTimerManager().SetTimer(AutoReloadHandle, Delegate, 0.3f, false);
+	}
+	else
+	{
+		InstigateActor->Reload();
+	}*/
+
+	InstigateActor->Reload();
+}
+
+void AFPWeaponBase::AutoReloadOnEmpty_TimeElapsed(AFPCharacter* InstigateActor)
+{
+	InstigateActor->Reload();
+}
+
+void AFPWeaponBase::ReloadCalculate()
+{
+	AmmoDifference = MagazineAmmo - CurrentAmmo;
+	if (AmmoDifference <= TotalAmmo)
+	{
+		CurrentAmmo = MagazineAmmo;
+		TotalAmmo -= AmmoDifference;
+	}
+	else
+	{
+		CurrentAmmo += TotalAmmo;
+		TotalAmmo = 0;
+	}
+}
+
+float AFPWeaponBase::PlayAnimMontageOnWeapon(float InPlayRate)
+{
+	UAnimInstance* AnimInstance = SkeletalMeshComponent->GetAnimInstance();
+	if (WeaponMontage && AnimInstance)
+	{
+		float Duration = AnimInstance->Montage_Play(WeaponMontage, InPlayRate);
+
+		return Duration;
+	}
+
+	return 0.0f;
+}
+
+bool AFPWeaponBase::IsMagazineFull()
+{
+	return CurrentAmmo == MagazineAmmo;
+}
+
+bool AFPWeaponBase::HasLoadedAmmo()
+{
+	return CurrentAmmo > 0;
+}
+
+bool AFPWeaponBase::HasReservedAmmo()
+{
+	return TotalAmmo > 0;
 }

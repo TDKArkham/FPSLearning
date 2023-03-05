@@ -73,6 +73,9 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &AFPCharacter::StopSprinting);
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPCharacter::Fire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AFPCharacter::StopFiring);
+
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AFPCharacter::Reload);
 }
 
 void AFPCharacter::MoveForward(float Axis)
@@ -96,10 +99,21 @@ void AFPCharacter::MoveRight(float Axis)
 
 void AFPCharacter::Fire()
 {
-	if (WeaponSystem->GetCanShoot() && WeaponSystem->GetCurrentWeapon())
+	if (bIsSprinting)
 	{
-		WeaponSystem->GetCurrentWeapon()->StartShooting(this);
+		StopSprinting();
 	}
+	WeaponSystem->FireWeapon();
+}
+
+void AFPCharacter::StopFiring()
+{
+	WeaponSystem->StopShooting();
+}
+
+void AFPCharacter::Reload()
+{
+	WeaponSystem->ReloadWeapon();
 }
 
 void AFPCharacter::StartSprinting()
@@ -110,7 +124,7 @@ void AFPCharacter::StartSprinting()
 		{
 			if (!bIsExhausted && EnergyLevel >= 0.2f)
 			{
-				if (!GetCharacterMovement()->IsFalling())
+				if (!GetCharacterMovement()->IsFalling() && GetCharacterMovement()->Velocity.Size() > 0.0f)
 				{
 					GetWorldTimerManager().ClearTimer(StaminaRecoverDelayHandle);
 
@@ -126,6 +140,7 @@ void AFPCharacter::StartSprinting()
 						}
 					case ELoadOut::ELO_HasWeapon:
 						{
+							WeaponSystem->StopShooting();
 							SprintTimeline->Play();
 							break;
 						}
@@ -187,6 +202,19 @@ void AFPCharacter::ExhaustedRecoverDelayFunc()
 	SprintTimeline->ReverseFromEnd();
 }
 
+float AFPCharacter::PlayAnimMontageOnArm(UAnimMontage* AnimMontage, float InPlayRate)
+{
+	UAnimInstance* AnimInstance = SkeletalMeshComponent->GetAnimInstance();
+	if (AnimMontage && AnimInstance)
+	{
+		float Duration = AnimInstance->Montage_Play(AnimMontage, InPlayRate);
+
+		return Duration;
+	}
+
+	return 0.0f;
+}
+
 UCameraComponent* AFPCharacter::GetCamera()
 {
 	return Camera;
@@ -200,4 +228,9 @@ USkeletalMeshComponent* AFPCharacter::GetMeshComponent()
 UFPMainHUD* AFPCharacter::GetMainHUD()
 {
 	return MainHUD;
+}
+
+bool AFPCharacter::GetIsSprinting()
+{
+	return bIsSprinting;
 }

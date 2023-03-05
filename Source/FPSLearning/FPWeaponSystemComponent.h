@@ -39,6 +39,9 @@ protected:
 	bool bCanShoot;
 
 	UPROPERTY(BlueprintReadWrite, Category = "WeaponSystem | CharacterState")
+	bool bCanReload;
+
+	UPROPERTY(BlueprintReadWrite, Category = "WeaponSystem | CharacterState")
 	bool bIsAiming;
 
 	AFPCharacter* OwnerCharacter;
@@ -62,8 +65,20 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "WeaponSystem | Delegate")
 	FOnAmmoChanged OnAmmoChanged;
 	
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponSystem | Weapon")
+	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | Weapon")
 	bool AddAmmoToWeapon(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo);
+
+	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | Weapon")
+	void FireWeapon();
+
+	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | Weapon")
+	void StopShooting();
+
+	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | Weapon")
+	void ReloadWeapon();
+
+	UFUNCTION()
+	void ReloadWeapon_TimeElapsed();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponSystem | Weapon")
 	AFPWeaponBase* GetCurrentWeapon();
@@ -71,16 +86,16 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponSystem | Weapon")
 	TArray<AFPWeaponBase*> GetWeaponSlots();
 
-	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | CharacterState")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponSystem | CharacterState")
 	bool GetIsSwitchingWeapon() const;
 
-	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | CharacterState")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponSystem | CharacterState")
 	bool GetIsReloading() const;
 
-	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | CharacterState")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponSystem | CharacterState")
 	bool GetCanShoot() const;
 
-	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | CharacterState")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponSystem | CharacterState")
 	bool GetIsAiming() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "WeaponSystem")

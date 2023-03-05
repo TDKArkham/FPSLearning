@@ -12,7 +12,8 @@
 
 UFPWeaponSystemComponent::UFPWeaponSystemComponent()
 {
-
+	bCanShoot = true;
+	bCanReload = true;
 }
 
 void UFPWeaponSystemComponent::BeginPlay()
@@ -63,7 +64,7 @@ void UFPWeaponSystemComponent::EquipWeapon(AFPWeaponBase* Weapon)
 			OwnerCharacter->GetMainHUD()->Crosshair->CrosshairUpdate();
 		}
 
-		OnAmmoChanged.Broadcast(CurrentWeapon->MagazineAmmo, CurrentWeapon->TotalAmmo, CurrentWeapon->AmmoTypeText);
+		OnAmmoChanged.Broadcast(CurrentWeapon->CurrentAmmo, CurrentWeapon->TotalAmmo, CurrentWeapon->AmmoTypeText);
 
 		FTimerHandle ResetTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(ResetTimerHandle, this, &UFPWeaponSystemComponent::ResetStateFlag, 0.35f);
@@ -102,6 +103,78 @@ bool UFPWeaponSystemComponent::AddAmmoToWeapon(EAmmoType AcquiredAmmoType, int32
 		}
 	}
 	return false;
+}
+
+void UFPWeaponSystemComponent::FireWeapon()
+{
+	if (bCanShoot && CurrentWeapon)
+	{
+		if (OwnerCharacter)
+		{
+			CurrentWeapon->StartShooting(OwnerCharacter);
+
+			OnAmmoChanged.Broadcast(CurrentWeapon->CurrentAmmo, CurrentWeapon->TotalAmmo, CurrentWeapon->AmmoTypeText);
+		}
+	}
+}
+
+void UFPWeaponSystemComponent::StopShooting()
+{
+	if(CurrentWeapon)
+	{
+		CurrentWeapon->StopShooting();
+	}
+}
+
+void UFPWeaponSystemComponent::ReloadWeapon()
+{
+	bCanReload = !CurrentWeapon->IsMagazineFull() && CurrentWeapon->HasReservedAmmo();
+
+	if (bCanReload)
+	{
+		if (OwnerCharacter)
+		{
+			if(OwnerCharacter->GetIsSprinting())
+			{
+				OwnerCharacter->StopSprinting();
+			}
+
+			if (CurrentWeapon)
+			{
+				if (CurrentWeapon->bIsShooting)
+				{
+					CurrentWeapon->StopShooting();
+				}
+
+				if (!bIsReloading || !bIsSwitchingWeapon)
+				{
+					bIsReloading = true;
+					bCanShoot = false;
+					bIsAiming = false;
+					
+					float AnimDuration = OwnerCharacter->PlayAnimMontageOnArm(CurrentWeapon->PlayerArmMontage);
+					CurrentWeapon->PlayAnimMontageOnWeapon();
+					if(AnimDuration == 0.0f)
+					{
+						AnimDuration = 3.0f;
+					}
+					
+					FTimerHandle ReloadDelayHandle;
+					GetWorld()->GetTimerManager().SetTimer(ReloadDelayHandle, this, &UFPWeaponSystemComponent::ReloadWeapon_TimeElapsed, AnimDuration);
+				}
+			}
+		}
+	}
+}
+
+void UFPWeaponSystemComponent::ReloadWeapon_TimeElapsed()
+{
+	CurrentWeapon->ReloadCalculate();
+	
+	bIsReloading = false;
+	bCanShoot = true;
+
+	OnAmmoChanged.Broadcast(CurrentWeapon->CurrentAmmo, CurrentWeapon->TotalAmmo, CurrentWeapon->AmmoTypeText);
 }
 
 UFPWeaponSystemComponent* UFPWeaponSystemComponent::GetWeaponSystemComponent(AActor* TargetActor)

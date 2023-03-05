@@ -76,6 +76,9 @@ protected:
 	UFUNCTION()
 	void Fire();
 
+	UFUNCTION()
+	void StopFiring();
+
 	UFUNCTION(Category = "Movement | Sprint")
 	void UpdatingTimeline(float Value);
 
@@ -89,6 +92,10 @@ protected:
 	void ExhaustedRecoverDelayFunc();
 	
 public:
+
+	UFUNCTION()
+	void Reload();
+	
 	UFUNCTION(Category = "Movement | Sprint")
 	void StartSprinting();
 
@@ -98,6 +105,9 @@ public:
 	UFUNCTION(Category = "Movement | Sprint")
 	void Exhausted();
 
+	UFUNCTION(BlueprintCallable, Category = "Mesh")
+	float PlayAnimMontageOnArm(UAnimMontage* AnimMontage, float InPlayRate = 1.0f);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mesh")
 	UCameraComponent* GetCamera();
 	
@@ -106,4 +116,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "UI")
 	UFPMainHUD* GetMainHUD();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Movement")
+	bool GetIsSprinting();
 };

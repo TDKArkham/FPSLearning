@@ -35,6 +35,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
 	int32 TotalAmmo;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
+	int32 CurrentAmmo;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
+	int32 AmmoDifference;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
+	bool bIsShooting;
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
 	EWeaponType WeaponType;
 
@@ -46,7 +55,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	FText AmmoTypeText;
-
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon | Attribute")
 	float BulletSpread;
 
@@ -55,15 +64,53 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attachment")
 	FName SocketName;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Sound")
+	USoundBase* DryFireSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Animation")
+	UAnimMontage* PlayerArmMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Animation")
+	UAnimMontage* WeaponMontage;
 	
 	// TODO: Refactor this func into Action System.
 	// Do I really need to refactor this?
 	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
 	void StartShooting(AFPCharacter* InstigateActor);
+
+
+	// TODO: Refactor this func into Action System.
+	// Do I really need to refactor this?
+	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
+	void StopShooting(/*AFPCharacter* InstigateActor*/);
 	
 	// TODO: Refactor this func into Inventory System, the weapon shouldn't contain the info of total ammo.
 	UFUNCTION(BlueprintCallable, Category = "Weapon | Ammo")
 	bool AddTotalAmmo(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo);
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon | Ammo")
+	void AutoReloadOnEmpty(AFPCharacter* InstigateActor);
+
+	UFUNCTION()
+	void AutoReloadOnEmpty_TimeElapsed(AFPCharacter* InstigateActor);
 	
+	UFUNCTION(BlueprintCallable, Category = "Weapon | Ammo")
+	void ReloadCalculate();
+
+	UFUNCTION(BlueprintCallable, Category = "Mesh")
+	float PlayAnimMontageOnWeapon(float InPlayRate = 1.0f);
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon | Ammo")
+	bool IsMagazineFull();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon | Ammo")
+	bool HasLoadedAmmo();
+	
+	/**
+	 * @brief Check if the player has more reserved ammo to use.
+	 * @return True if there is left, False if there is not
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Weapon | Ammo")
+	bool HasReservedAmmo();
 };
