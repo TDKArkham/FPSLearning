@@ -8,6 +8,7 @@
 #include "FPWeaponBase.generated.h"
 
 class UCameraComponent;
+class UTimelineComponent;
 
 UCLASS()
 class FPSLEARNING_API AFPWeaponBase : public AActor
@@ -22,6 +23,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USkeletalMeshComponent* SkeletalMeshComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UTimelineComponent* RecoilTimeline;
 
 	FHitResult CalculateLineTrace(AFPCharacter* Player);
 
@@ -62,6 +66,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Attribute")
 	float ShotRange;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
+	UCurveFloat* RecoilCurve;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
+	float VerticalRecoil;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
+	float HorizontalRecoil;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attachment")
 	FName SocketName;
 
@@ -73,17 +86,37 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Animation")
 	UAnimMontage* WeaponMontage;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Animation")
+	UAnimationAsset* FireAnim;
 	
 	// TODO: Refactor this func into Action System.
 	// Do I really need to refactor this?
 	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
 	void StartShooting(AFPCharacter* InstigateActor);
 
-
 	// TODO: Refactor this func into Action System.
 	// Do I really need to refactor this?
 	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
 	void StopShooting(/*AFPCharacter* InstigateActor*/);
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
+	void StartRecoil();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
+	void StopRecoil();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
+	void ReverseRecoil();
+
+	UFUNCTION()
+	void UpdatingTimeline(float Alpha);
+
+	UFUNCTION()
+	void TimelineFinished();
+
+	UFUNCTION()
+	void TimelineFinished_TimeElapsed();
 	
 	// TODO: Refactor this func into Inventory System, the weapon shouldn't contain the info of total ammo.
 	UFUNCTION(BlueprintCallable, Category = "Weapon | Ammo")

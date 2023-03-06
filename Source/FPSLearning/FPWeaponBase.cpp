@@ -7,6 +7,7 @@
 #include "FPCharacter.h"
 #include "FPWeaponSystemComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/TimelineComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -16,22 +17,41 @@ AFPWeaponBase::AFPWeaponBase()
 	SkeletalMeshComponent->SetupAttachment(RootComponent);
 	SkeletalMeshComponent->SetCastShadow(false);
 
+	RecoilTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("RecoilTimeline"));
+	RecoilTimeline->SetLooping(false);
+
 	/*ChamberAmmo = 1;*/
 	MagazineAmmo = 30;
 	TotalAmmo = 200;
 	AmmoTypeText = FText::FromString("[Auto]");
-	
+
 	SocketName = "b_RightWeapon";
 
 	BulletSpread = 35.0f;
 	ShotRange = 10000.0f;
+
+	VerticalRecoil = -0.05f;
+	HorizontalRecoil = 0.15f;
 }
 
 void AFPWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	CurrentAmmo = MagazineAmmo;
+
+	if (RecoilCurve)
+	{
+		FOnTimelineFloat StartTimelineFloat;
+		StartTimelineFloat.BindUFunction(this, "UpdatingTimeline");
+		RecoilTimeline->AddInterpFloat(RecoilCurve, StartTimelineFloat);
+
+		FOnTimelineEventStatic EndTimelineFloat;
+		EndTimelineFloat.BindUFunction(this, "TimelineFinished");
+		RecoilTimeline->SetTimelineFinishedFunc(EndTimelineFloat);
+
+		RecoilTimeline->SetTimelineLengthMode(TL_LastKeyFrame);
+	}
 }
 
 FHitResult AFPWeaponBase::CalculateLineTrace(AFPCharacter* Player)
@@ -77,6 +97,12 @@ void AFPWeaponBase::StartShooting(AFPCharacter* InstigateActor)
 	}
 
 	CurrentAmmo -= 1;
+
+	if (FireAnim)
+	{
+		SkeletalMeshComponent->PlayAnimation(FireAnim, false);
+	}
+
 	if (CurrentAmmo <= 0)
 	{
 		// Only auto reload when using Grenade Launcher or Rocket Launcher.
@@ -99,12 +125,60 @@ void AFPWeaponBase::StartShooting(AFPCharacter* InstigateActor)
 		}
 	}
 
+	StartRecoil();
 	bIsShooting = true;
 }
 
 void AFPWeaponBase::StopShooting(/*AFPCharacter* InstigateActor*/)
 {
 	bIsShooting = false;
+}
+
+void AFPWeaponBase::StartRecoil()
+{
+	RecoilTimeline->PlayFromStart();
+}
+
+void AFPWeaponBase::StopRecoil()
+{
+	RecoilTimeline->Stop();
+}
+
+void AFPWeaponBase::ReverseRecoil()
+{
+	RecoilTimeline->Reverse();
+}
+
+void AFPWeaponBase::UpdatingTimeline(float Alpha)
+{
+	ACharacter* Player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	if (Player)
+	{
+		float PitchDelta = FMath::Lerp(0.0f, VerticalRecoil, Alpha);
+		bool bIsReversing = RecoilTimeline->IsReversing();
+
+		PitchDelta = !bIsReversing ? PitchDelta : -PitchDelta;
+
+		Player->AddControllerPitchInput(PitchDelta);
+
+		if(!bIsReversing)
+		{
+			Player->AddControllerYawInput(FMath::FRandRange(HorizontalRecoil, -HorizontalRecoil));
+		}
+	}
+
+}
+
+void AFPWeaponBase::TimelineFinished()
+{
+	ReverseRecoil();
+	FTimerHandle StopRecoilDelayHandle;
+	GetWorldTimerManager().SetTimer(StopRecoilDelayHandle, this, &AFPWeaponBase::TimelineFinished_TimeElapsed, 0.08f);
+}
+
+void AFPWeaponBase::TimelineFinished_TimeElapsed()
+{
+	StopRecoil();
 }
 
 bool AFPWeaponBase::AddTotalAmmo(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo)

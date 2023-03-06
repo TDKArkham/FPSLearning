@@ -152,8 +152,8 @@ void UFPWeaponSystemComponent::ReloadWeapon()
 					bCanShoot = false;
 					bIsAiming = false;
 					
-					float AnimDuration = OwnerCharacter->PlayAnimMontageOnArm(CurrentWeapon->PlayerArmMontage);
-					CurrentWeapon->PlayAnimMontageOnWeapon();
+					OwnerCharacter->PlayAnimMontageOnArm(CurrentWeapon->PlayerArmMontage);
+					float AnimDuration = CurrentWeapon->PlayAnimMontageOnWeapon();
 					if(AnimDuration == 0.0f)
 					{
 						AnimDuration = 3.0f;
