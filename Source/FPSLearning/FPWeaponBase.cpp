@@ -29,6 +29,8 @@ AFPWeaponBase::AFPWeaponBase()
 
 	BulletSpread = 35.0f;
 	ShotRange = 10000.0f;
+	PelletCount = 0;
+	BulletPerMin = 0;
 
 	VerticalRecoil = -0.05f;
 	HorizontalRecoil = 0.15f;
@@ -79,8 +81,8 @@ FHitResult AFPWeaponBase::CalculateLineTrace(AFPCharacter* Player)
 
 		GetWorld()->LineTraceSingleByObjectType(HitResult, Start, End, ObjectParams, Params);
 
-		/*FColor Color = HitResult.Actor.IsValid() ? FColor::Green : FColor::Red;
-		DrawDebugLine(GetWorld(), Start, End, Color, false, 3.0f);*/
+		FColor Color = HitResult.Actor.IsValid() ? FColor::Green : FColor::Red;
+		DrawDebugLine(GetWorld(), Start, End, Color, false, 3.0f);
 
 		return HitResult;
 	}
@@ -116,7 +118,17 @@ void AFPWeaponBase::StartShooting_Implementation(AFPCharacter* InstigateActor, U
 	{
 	case EFireType::EFT_HitScan:
 		{
-			CalculateLineTrace(InstigateActor);
+			if (WeaponType == EWeaponType::EWT_ShotGun)
+			{
+				for (int32 Index = 0; Index < PelletCount; Index++)
+				{
+					CalculateLineTrace(InstigateActor);
+				}
+			}
+			else
+			{
+				CalculateLineTrace(InstigateActor);
+			}
 			break;
 		}
 	case EFireType::EFT_Projectile:
@@ -127,7 +139,7 @@ void AFPWeaponBase::StartShooting_Implementation(AFPCharacter* InstigateActor, U
 
 	StartRecoil();
 	bIsShooting = true;
-	if(InstigateWeaponSystem)
+	if (InstigateWeaponSystem)
 	{
 		InstigateWeaponSystem->OnAmmoChanged.Broadcast(CurrentAmmo, TotalAmmo, AmmoTypeText);
 	}
@@ -151,6 +163,22 @@ void AFPWeaponBase::StopRecoil()
 void AFPWeaponBase::ReverseRecoil()
 {
 	RecoilTimeline->Reverse();
+}
+
+void AFPWeaponBase::BeginFireInterval()
+{
+	bIsFireIntervalActive = true;
+
+	FTimerHandle FireIntervalHandle;
+	if (!GetWorldTimerManager().IsTimerActive(FireIntervalHandle))
+	{
+		GetWorldTimerManager().SetTimer(FireIntervalHandle, this, &AFPWeaponBase::ResetFireInterval, 60.0f / BulletPerMin);
+	}
+}
+
+void AFPWeaponBase::ResetFireInterval()
+{
+	bIsFireIntervalActive = false;
 }
 
 void AFPWeaponBase::UpdatingTimeline(float Alpha)

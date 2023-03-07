@@ -49,25 +49,37 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
 	bool bIsShooting;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon | Status | Shotgun")
+	bool bIsFireIntervalActive;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	EWeaponType WeaponType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	EAmmoType AmmoType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	EFireType FireType;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	FText AmmoTypeText;
 	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon | Attribute")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Attribute")
 	float BulletSpread;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Attribute")
 	float ShotRange;
+	
+	/**
+	 * @brief If this weapon is a shotgun, how many sub-bullet we want it to have each shoot.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Attribute | Shotgun")
+	int32 PelletCount;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Attribute")
+	int32 BulletPerMin;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	UCurveFloat* RecoilCurve;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
@@ -109,6 +121,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
 	void ReverseRecoil();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
+	void BeginFireInterval();
+
+	UFUNCTION()
+	void ResetFireInterval();
 
 	UFUNCTION()
 	void UpdatingTimeline(float Alpha);

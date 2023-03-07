@@ -107,7 +107,7 @@ bool UFPWeaponSystemComponent::AddAmmoToWeapon(EAmmoType AcquiredAmmoType, int32
 
 void UFPWeaponSystemComponent::FireWeapon()
 {
-	if (bCanShoot && CurrentWeapon)
+	if (bCanShoot && CurrentWeapon && !CurrentWeapon->bIsFireIntervalActive)
 	{
 		if (OwnerCharacter)
 		{
@@ -118,7 +118,7 @@ void UFPWeaponSystemComponent::FireWeapon()
 
 void UFPWeaponSystemComponent::StopShooting()
 {
-	if(CurrentWeapon)
+	if (CurrentWeapon)
 	{
 		CurrentWeapon->StopShooting();
 	}
@@ -132,7 +132,7 @@ void UFPWeaponSystemComponent::ReloadWeapon()
 	{
 		if (OwnerCharacter)
 		{
-			if(OwnerCharacter->GetIsSprinting())
+			if (OwnerCharacter->GetIsSprinting())
 			{
 				OwnerCharacter->StopSprinting();
 			}
@@ -149,14 +149,14 @@ void UFPWeaponSystemComponent::ReloadWeapon()
 					bIsReloading = true;
 					bCanShoot = false;
 					bIsAiming = false;
-					
+
 					OwnerCharacter->PlayAnimMontageOnArm(CurrentWeapon->PlayerArmMontage);
 					float AnimDuration = CurrentWeapon->PlayAnimMontageOnWeapon();
-					if(AnimDuration == 0.0f)
+					if (AnimDuration == 0.0f)
 					{
 						AnimDuration = 3.0f;
 					}
-					
+
 					FTimerHandle ReloadDelayHandle;
 					GetWorld()->GetTimerManager().SetTimer(ReloadDelayHandle, this, &UFPWeaponSystemComponent::ReloadWeapon_TimeElapsed, AnimDuration);
 				}
@@ -168,7 +168,7 @@ void UFPWeaponSystemComponent::ReloadWeapon()
 void UFPWeaponSystemComponent::ReloadWeapon_TimeElapsed()
 {
 	CurrentWeapon->ReloadCalculate();
-	
+
 	bIsReloading = false;
 	bCanShoot = true;
 
