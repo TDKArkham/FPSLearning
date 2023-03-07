@@ -97,7 +97,7 @@ bool UFPWeaponSystemComponent::AddAmmoToWeapon(EAmmoType AcquiredAmmoType, int32
 		{
 			if (Weapon == CurrentWeapon)
 			{
-				OnAmmoChanged.Broadcast(CurrentWeapon->MagazineAmmo, CurrentWeapon->TotalAmmo, CurrentWeapon->AmmoTypeText);
+				OnAmmoChanged.Broadcast(CurrentWeapon->CurrentAmmo, CurrentWeapon->TotalAmmo, CurrentWeapon->AmmoTypeText);
 			}
 			return true;
 		}
