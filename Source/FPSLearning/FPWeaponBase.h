@@ -9,6 +9,7 @@
 
 class UCameraComponent;
 class UTimelineComponent;
+class UFPWeaponSystemComponent;
 
 UCLASS()
 class FPSLEARNING_API AFPWeaponBase : public AActor
@@ -92,12 +93,12 @@ public:
 	
 	// TODO: Refactor this func into Action System.
 	// Do I really need to refactor this?
-	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
-	void StartShooting(AFPCharacter* InstigateActor);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon | Fire")
+	void StartShooting(AFPCharacter* InstigateActor, UFPWeaponSystemComponent* InstigateWeaponSystem);
 
 	// TODO: Refactor this func into Action System.
 	// Do I really need to refactor this?
-	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon | Fire")
 	void StopShooting(/*AFPCharacter* InstigateActor*/);
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")

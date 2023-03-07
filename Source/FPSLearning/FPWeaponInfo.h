@@ -37,7 +37,7 @@ public:
 	UProgressBar* StaminaBar;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	UTextBlock* MagazineAmmoText;
+	UTextBlock* CurrentAmmoText;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	UTextBlock* ReservedAmmoText;
@@ -49,7 +49,7 @@ public:
 	FText IntToFText(int32 Num, EBitType Type);
 
 	UFUNCTION()
-	void OnAmmoChanged(int32 MagazineAmmo, int32 TotalAmmo, FText AmmoType);
+	void OnAmmoChanged(int32 CurrentAmmo, int32 TotalAmmo, FText AmmoType);
 
 protected:
 	ACharacter* Player;

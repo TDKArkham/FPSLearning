@@ -111,9 +111,7 @@ void UFPWeaponSystemComponent::FireWeapon()
 	{
 		if (OwnerCharacter)
 		{
-			CurrentWeapon->StartShooting(OwnerCharacter);
-
-			OnAmmoChanged.Broadcast(CurrentWeapon->CurrentAmmo, CurrentWeapon->TotalAmmo, CurrentWeapon->AmmoTypeText);
+			CurrentWeapon->StartShooting(OwnerCharacter, this);
 		}
 	}
 }

@@ -88,7 +88,7 @@ FHitResult AFPWeaponBase::CalculateLineTrace(AFPCharacter* Player)
 	return HitResult;
 }
 
-void AFPWeaponBase::StartShooting(AFPCharacter* InstigateActor)
+void AFPWeaponBase::StartShooting_Implementation(AFPCharacter* InstigateActor, UFPWeaponSystemComponent* InstigateWeaponSystem)
 {
 	if (CurrentAmmo <= 0)
 	{
@@ -127,9 +127,13 @@ void AFPWeaponBase::StartShooting(AFPCharacter* InstigateActor)
 
 	StartRecoil();
 	bIsShooting = true;
+	if(InstigateWeaponSystem)
+	{
+		InstigateWeaponSystem->OnAmmoChanged.Broadcast(CurrentAmmo, TotalAmmo, AmmoTypeText);
+	}
 }
 
-void AFPWeaponBase::StopShooting(/*AFPCharacter* InstigateActor*/)
+void AFPWeaponBase::StopShooting_Implementation(/*AFPCharacter* InstigateActor*/)
 {
 	bIsShooting = false;
 }
@@ -161,7 +165,7 @@ void AFPWeaponBase::UpdatingTimeline(float Alpha)
 
 		Player->AddControllerPitchInput(PitchDelta);
 
-		if(!bIsReversing)
+		if (!bIsReversing)
 		{
 			Player->AddControllerYawInput(FMath::FRandRange(HorizontalRecoil, -HorizontalRecoil));
 		}

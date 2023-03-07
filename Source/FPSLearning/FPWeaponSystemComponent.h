@@ -7,7 +7,7 @@
 #include "WeaponData.h"
 #include "FPWeaponSystemComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAmmoChanged, int32, MagazineAmmo, int32, TotalAmmo, FText, AmmoType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAmmoChanged, int32, CurrrentAmmo, int32, TotalAmmo, FText, AmmoType);
 
 class AFPWeaponBase;
 class AFPCharacter;
