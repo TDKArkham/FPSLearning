@@ -10,6 +10,7 @@
 class UCameraComponent;
 class UTimelineComponent;
 class UFPWeaponSystemComponent;
+class AFPImpactEffectBase;
 
 UCLASS()
 class FPSLEARNING_API AFPWeaponBase : public AActor
@@ -29,6 +30,8 @@ protected:
 	UTimelineComponent* RecoilTimeline;
 
 	FHitResult CalculateLineTrace(AFPCharacter* Player);
+
+	void SpawnImpactEffect(FHitResult HitResult);
 
 public:
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
@@ -102,6 +105,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Animation")
 	UAnimationAsset* FireAnim;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Effect")
+	TSubclassOf<AFPImpactEffectBase> ImpactEffectClass;
 	
 	// TODO: Refactor this func into Action System.
 	// Do I really need to refactor this?

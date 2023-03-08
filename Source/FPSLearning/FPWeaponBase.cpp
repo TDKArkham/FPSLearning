@@ -5,6 +5,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "FPCharacter.h"
+#include "FPImpactEffectBase.h"
 #include "FPWeaponSystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/TimelineComponent.h"
@@ -90,6 +91,17 @@ FHitResult AFPWeaponBase::CalculateLineTrace(AFPCharacter* Player)
 	return HitResult;
 }
 
+void AFPWeaponBase::SpawnImpactEffect(FHitResult HitResult)
+{
+	if (ensure(ImpactEffectClass))
+	{
+		const FTransform SpawnTransform(HitResult.ImpactPoint);
+		AFPImpactEffectBase* ImpactEffect = Cast<AFPImpactEffectBase>(UGameplayStatics::BeginDeferredActorSpawnFromClass(GetWorld(), ImpactEffectClass, SpawnTransform));
+		ImpactEffect->HitResult = HitResult;
+		UGameplayStatics::FinishSpawningActor(ImpactEffect, SpawnTransform);
+	}
+}
+
 void AFPWeaponBase::StartShooting_Implementation(AFPCharacter* InstigateActor, UFPWeaponSystemComponent* InstigateWeaponSystem)
 {
 	if (CurrentAmmo <= 0)
@@ -116,25 +128,27 @@ void AFPWeaponBase::StartShooting_Implementation(AFPCharacter* InstigateActor, U
 
 	switch (FireType)
 	{
-	case EFireType::EFT_HitScan:
-		{
-			if (WeaponType == EWeaponType::EWT_ShotGun)
+		case EFireType::EFT_HitScan:
 			{
-				for (int32 Index = 0; Index < PelletCount; Index++)
+				if (WeaponType == EWeaponType::EWT_ShotGun)
 				{
-					CalculateLineTrace(InstigateActor);
+					for (int32 Index = 0; Index < PelletCount; Index++)
+					{
+						FHitResult HitResult = CalculateLineTrace(InstigateActor);
+						SpawnImpactEffect(HitResult);
+					}
 				}
+				else
+				{
+					FHitResult HitResult = CalculateLineTrace(InstigateActor);
+					SpawnImpactEffect(HitResult);
+				}
+				break;
 			}
-			else
+		case EFireType::EFT_Projectile:
 			{
-				CalculateLineTrace(InstigateActor);
+				break;
 			}
-			break;
-		}
-	case EFireType::EFT_Projectile:
-		{
-			break;
-		}
 	}
 
 	StartRecoil();
