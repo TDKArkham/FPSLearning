@@ -33,6 +33,8 @@ protected:
 
 	void SpawnImpactEffect(FHitResult HitResult);
 
+	void ApplyDamageOnHitScan(FHitResult HitResult);
+
 public:
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
 	int32 ChamberAmmo;*/
@@ -63,6 +65,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	EFireType FireType;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
+	FDamageData DamageData;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	FText AmmoTypeText;

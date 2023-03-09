@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "WeaponData.generated.h"
+
 UENUM(BlueprintType)
 enum class EFireType : uint8
 {
@@ -34,4 +36,16 @@ enum class EAmmoType : uint8
 	EAT_SniperRifleAmmo		UMETA(DisplayName = "SniperRifleAmmo"),
 	EAT_GrenadeLauncherAmmo UMETA(DisplayName = "GrenadeLauncherAmmo"),
 	EAT_RocketLauncherAmmo	UMETA(DisplayName = "RocketLauncherAmmo"),
+};
+
+USTRUCT(BlueprintType)
+struct FDamageData
+{
+	GENERATED_BODY()
+
+		UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		float ImpactRadius;
 };

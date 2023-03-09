@@ -5,6 +5,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "FPCharacter.h"
+#include "FPDamageInterface.h"
 #include "FPImpactEffectBase.h"
 #include "FPWeaponSystemComponent.h"
 #include "Camera/CameraComponent.h"
@@ -32,6 +33,9 @@ AFPWeaponBase::AFPWeaponBase()
 	ShotRange = 10000.0f;
 	PelletCount = 0;
 	BulletPerMin = 0;
+
+	DamageData.Damage = 20.0f;
+	DamageData.ImpactRadius = 50.0f;
 
 	VerticalRecoil = -0.05f;
 	HorizontalRecoil = 0.15f;
@@ -76,10 +80,14 @@ FHitResult AFPWeaponBase::CalculateLineTrace(AFPCharacter* Player)
 		FCollisionObjectQueryParams ObjectParams;
 		ObjectParams.AddObjectTypesToQuery(ECC_WorldStatic);
 		ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+		ObjectParams.AddObjectTypesToQuery(ECC_PhysicsBody);
+		
 
 		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(Player);
+		Params.bReturnPhysicalMaterial = true;
 
+		// DEBUG: Remove this code later.
 		GetWorld()->LineTraceSingleByObjectType(HitResult, Start, End, ObjectParams, Params);
 
 		FColor Color = HitResult.Actor.IsValid() ? FColor::Green : FColor::Red;
@@ -99,6 +107,15 @@ void AFPWeaponBase::SpawnImpactEffect(FHitResult HitResult)
 		AFPImpactEffectBase* ImpactEffect = Cast<AFPImpactEffectBase>(UGameplayStatics::BeginDeferredActorSpawnFromClass(GetWorld(), ImpactEffectClass, SpawnTransform));
 		ImpactEffect->HitResult = HitResult;
 		UGameplayStatics::FinishSpawningActor(ImpactEffect, SpawnTransform);
+	}
+}
+
+void AFPWeaponBase::ApplyDamageOnHitScan(FHitResult HitResult)
+{
+	AActor* HitActor = HitResult.GetActor();
+	if (HitActor && HitActor->Implements<UFPDamageInterface>())
+	{
+		IFPDamageInterface::Execute_TakeDamage(HitActor, DamageData, HitResult, this);
 	}
 }
 
@@ -136,12 +153,14 @@ void AFPWeaponBase::StartShooting_Implementation(AFPCharacter* InstigateActor, U
 					{
 						FHitResult HitResult = CalculateLineTrace(InstigateActor);
 						SpawnImpactEffect(HitResult);
+						ApplyDamageOnHitScan(HitResult);
 					}
 				}
 				else
 				{
 					FHitResult HitResult = CalculateLineTrace(InstigateActor);
 					SpawnImpactEffect(HitResult);
+					ApplyDamageOnHitScan(HitResult);
 				}
 				break;
 			}
