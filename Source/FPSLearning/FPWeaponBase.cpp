@@ -39,6 +39,9 @@ AFPWeaponBase::AFPWeaponBase()
 	PelletCount = 0;
 	BulletPerMin = 0;
 
+	AimFieldOfView = 70.0f;
+	HipFieldOfView = 90.0f;
+
 	DamageData.Damage = 20.0f;
 	DamageData.ImpactRadius = 50.0f;
 

@@ -30,7 +30,9 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
+	virtual void Tick(float DeltaSeconds) override;
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
@@ -75,6 +77,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Speed")
 	float MaxSprintSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement | Aim")
+	float FOVInterpSpeed;
 
 	FTimerHandle StaminaRecoverDelayHandle;
 	
@@ -127,6 +132,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void SetPlayerSpeed(EMoveType MoveType);
+
+	UFUNCTION(BlueprintCallable, Category = "Player | Camera")
+	void SetFieldOfView();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mesh")
 	UCameraComponent* GetCamera();

@@ -8,7 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/TimelineComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "Kismet/GameplayStatics.h"
 
 AFPCharacter::AFPCharacter()
 {
@@ -30,6 +30,8 @@ AFPCharacter::AFPCharacter()
 	EnergyLevel = 1.0f;
 	StaminaRecoverDelay = 2.0f;
 	ExhaustedRecoverDelay = 5.0f;
+
+	FOVInterpSpeed = 7.0f;
 }
 
 void AFPCharacter::BeginPlay()
@@ -57,6 +59,13 @@ void AFPCharacter::BeginPlay()
 
 		SprintTimeline->SetTimelineLengthMode(TL_LastKeyFrame);
 	}
+}
+
+void AFPCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	SetFieldOfView();
 }
 
 void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -254,6 +263,22 @@ void AFPCharacter::SetPlayerSpeed(EMoveType MoveType)
 	}
 
 	GetCharacterMovement()->MaxWalkSpeed = TargetSpeed;
+}
+
+void AFPCharacter::SetFieldOfView()
+{
+	if(WeaponSystem->GetCurrentWeapon())
+	{
+		float TargetFieldOfView = WeaponSystem->GetIsAiming()
+			? FMath::FInterpTo(GetCamera()->FieldOfView,
+							   WeaponSystem->GetCurrentWeapon()->AimFieldOfView,
+							   UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), FOVInterpSpeed)
+			: FMath::FInterpTo(GetCamera()->FieldOfView,
+							   WeaponSystem->GetCurrentWeapon()->HipFieldOfView,
+							   UGameplayStatics::GetWorldDeltaSeconds(GetWorld()),
+							   FOVInterpSpeed);
+		GetCamera()->SetFieldOfView(TargetFieldOfView);
+	}
 }
 
 UCameraComponent* AFPCharacter::GetCamera()

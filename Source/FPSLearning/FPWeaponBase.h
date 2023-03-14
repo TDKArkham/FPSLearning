@@ -97,7 +97,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	EFireType FireType;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
 	FDamageData DamageData;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
@@ -108,6 +108,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Attribute")
 	float ShotRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
+	float AimFieldOfView;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute")
+	float HipFieldOfView;
 	
 	/**
 	 * @brief If this weapon is a shotgun, how many sub-bullet we want it to have each shoot.
