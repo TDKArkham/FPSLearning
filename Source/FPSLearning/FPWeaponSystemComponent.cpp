@@ -8,12 +8,18 @@
 #include "FPWeaponBase.h"
 #include "WeaponData.h"
 #include "FPMainHUD.h"
-
+#include "Kismet/GameplayStatics.h"
 
 UFPWeaponSystemComponent::UFPWeaponSystemComponent()
 {
 	bCanShoot = true;
 	bCanReload = true;
+
+	bIsSwitchingWeapon = false;
+	bIsReloading = false;
+	bIsAiming = false;
+
+	LoadOut = ELoadOut::ELO_NoWeapon;
 }
 
 void UFPWeaponSystemComponent::BeginPlay()
@@ -28,7 +34,9 @@ void UFPWeaponSystemComponent::WeaponPickUp(TSubclassOf<AFPWeaponBase> WeaponToS
 {
 	if (OwnerCharacter)
 	{
-		WeaponSlots.Add(GetWorld()->SpawnActor<AFPWeaponBase>(WeaponToSpawn, OwnerCharacter->GetActorTransform()));
+		FActorSpawnParameters SpawnParameters;
+		SpawnParameters.Owner = OwnerCharacter;
+		WeaponSlots.Add(GetWorld()->SpawnActor<AFPWeaponBase>(WeaponToSpawn, OwnerCharacter->GetActorTransform(), SpawnParameters));
 		CurrentWeapon = WeaponSlots.Last();
 		if (CurrentWeapon)
 		{
@@ -111,7 +119,7 @@ void UFPWeaponSystemComponent::FireWeapon()
 	{
 		if (OwnerCharacter)
 		{
-			CurrentWeapon->StartShooting(OwnerCharacter, this);
+			CurrentWeapon->StartShooting();
 		}
 	}
 }
@@ -121,6 +129,39 @@ void UFPWeaponSystemComponent::StopShooting()
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->StopShooting();
+	}
+}
+
+void UFPWeaponSystemComponent::Aim()
+{
+	if (!bIsReloading)
+	{
+		bIsAiming = true;
+
+		OnAimEnter.Broadcast();
+
+		if (OwnerCharacter)
+		{
+			OwnerCharacter->StopSprinting();
+			if (LoadOut == ELoadOut::ELO_HasWeapon)
+			{
+				OwnerCharacter->SetPlayerSpeed(EMT_AimWalk);
+			}
+		}
+	}
+}
+
+void UFPWeaponSystemComponent::StopAiming()
+{
+	bIsAiming = false;
+	OnAimExit.Broadcast();
+
+	if (OwnerCharacter)
+	{
+		if (LoadOut == ELoadOut::ELO_HasWeapon)
+		{
+			OwnerCharacter->SetPlayerSpeed(EMT_NormalWalk);
+		}
 	}
 }
 
@@ -177,7 +218,7 @@ void UFPWeaponSystemComponent::ReloadWeapon_TimeElapsed()
 
 UFPWeaponSystemComponent* UFPWeaponSystemComponent::GetWeaponSystemComponent(AActor* TargetActor)
 {
-	return Cast<UFPWeaponSystemComponent>(TargetActor->GetComponentByClass(StaticClass()));
+	return TargetActor ? Cast<UFPWeaponSystemComponent>(TargetActor->GetComponentByClass(StaticClass())) : nullptr;
 }
 
 AFPWeaponBase* UFPWeaponSystemComponent::GetCurrentWeapon()

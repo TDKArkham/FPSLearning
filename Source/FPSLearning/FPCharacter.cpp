@@ -23,9 +23,11 @@ AFPCharacter::AFPCharacter()
 
 	SprintTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("SprintTimeline"));
 
-	EnergyLevel = 1.0f;
+	MaxWalkSpeed = 480.0f;
+	MaxAimWalkSpeed = 250.0f;
 	MaxSprintSpeed = 600.0f;
-	MaxWalkSpeed = 400.0f;
+
+	EnergyLevel = 1.0f;
 	StaminaRecoverDelay = 2.0f;
 	ExhaustedRecoverDelay = 5.0f;
 }
@@ -75,6 +77,9 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFPCharacter::Fire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &AFPCharacter::StopFiring);
 
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &AFPCharacter::Aim);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &AFPCharacter::StopAiming);
+
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AFPCharacter::Reload);
 }
 
@@ -111,6 +116,16 @@ void AFPCharacter::StopFiring()
 	WeaponSystem->StopShooting();
 }
 
+void AFPCharacter::Aim()
+{
+	WeaponSystem->Aim();
+}
+
+void AFPCharacter::StopAiming()
+{
+	WeaponSystem->StopAiming();
+}
+
 void AFPCharacter::Reload()
 {
 	WeaponSystem->ReloadWeapon();
@@ -128,7 +143,7 @@ void AFPCharacter::StartSprinting()
 				{
 					GetWorldTimerManager().ClearTimer(StaminaRecoverDelayHandle);
 
-					GetCharacterMovement()->MaxWalkSpeed = MaxSprintSpeed;
+					SetPlayerSpeed(EMT_Sprint);
 					bIsSprinting = true;
 
 					switch (WeaponSystem->LoadOut)
@@ -156,7 +171,7 @@ void AFPCharacter::StopSprinting()
 {
 	if (!bIsExhausted)
 	{
-		GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
+		SetPlayerSpeed(EMT_NormalWalk);
 		bIsSprinting = false;
 
 		SprintTimeline->Stop();
@@ -168,7 +183,7 @@ void AFPCharacter::StopSprinting()
 void AFPCharacter::Exhausted()
 {
 	bIsExhausted = true;
-	GetCharacterMovement()->MaxWalkSpeed = MaxWalkSpeed;
+	SetPlayerSpeed(EMT_NormalWalk);
 	bIsSprinting = false;
 
 	FTimerHandle ExhaustedRecoverDelayHandle;
@@ -213,6 +228,32 @@ float AFPCharacter::PlayAnimMontageOnArm(UAnimMontage* AnimMontage, float InPlay
 	}
 
 	return 0.0f;
+}
+
+void AFPCharacter::SetPlayerSpeed(EMoveType MoveType)
+{
+	float TargetSpeed = MaxWalkSpeed;
+
+	switch (MoveType)
+	{
+	case EMT_NormalWalk:
+		{
+			TargetSpeed = MaxWalkSpeed;
+			break;
+		}
+	case EMT_AimWalk:
+		{
+			TargetSpeed = MaxAimWalkSpeed;
+			break;
+		}
+	case EMT_Sprint:
+		{
+			TargetSpeed = MaxSprintSpeed;
+			break;
+		}
+	}
+
+	GetCharacterMovement()->MaxWalkSpeed = TargetSpeed;
 }
 
 UCameraComponent* AFPCharacter::GetCamera()

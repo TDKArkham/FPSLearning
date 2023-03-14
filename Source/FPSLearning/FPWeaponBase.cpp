@@ -25,11 +25,16 @@ AFPWeaponBase::AFPWeaponBase()
 	/*ChamberAmmo = 1;*/
 	MagazineAmmo = 30;
 	TotalAmmo = 200;
+	AmmoDifference = 0;
 	AmmoTypeText = FText::FromString("[Auto]");
 
 	SocketName = "b_RightWeapon";
 
+	bIsShooting = false;
+	bIsFireIntervalActive = false;
+
 	BulletSpread = 35.0f;
+	AimBulletSpread = 20.0f;
 	ShotRange = 10000.0f;
 	PelletCount = 0;
 	BulletPerMin = 0;
@@ -47,6 +52,14 @@ void AFPWeaponBase::BeginPlay()
 
 	CurrentAmmo = MagazineAmmo;
 
+	OwnerCharacter = Cast<AFPCharacter>(GetOwner());
+	OwnerComponent = UFPWeaponSystemComponent::GetWeaponSystemComponent(OwnerCharacter);
+	if (OwnerComponent)
+	{
+		OwnerComponent->OnAimEnter.AddDynamic(this, &AFPWeaponBase::OnWeaponAimingEnter);
+		OwnerComponent->OnAimExit.AddDynamic(this, &AFPWeaponBase::OnWeaponAimingExit);
+	}
+
 	if (RecoilCurve)
 	{
 		FOnTimelineFloat StartTimelineFloat;
@@ -61,30 +74,37 @@ void AFPWeaponBase::BeginPlay()
 	}
 }
 
-FHitResult AFPWeaponBase::CalculateLineTrace(AFPCharacter* Player)
+FHitResult AFPWeaponBase::CalculateLineTrace()
 {
 	FHitResult HitResult;
-	if (Player)
+	if (OwnerCharacter)
 	{
-		UFPWeaponSystemComponent* WeaponSystem = UFPWeaponSystemComponent::GetWeaponSystemComponent(Player);
-
-		FVector Start = Player->GetCamera()->GetComponentLocation();
-		FVector End = Player->GetCamera()->GetComponentRotation().Vector() * ShotRange + Start;
-		if (WeaponSystem && !WeaponSystem->GetIsAiming())
+		FVector Start = OwnerCharacter->GetCamera()->GetComponentLocation();
+		FVector End = OwnerCharacter->GetCamera()->GetComponentRotation().Vector() * ShotRange + Start;
+		float TargetSpread = 0.0f;
+		if (OwnerComponent)
 		{
-			End.X += FMath::FRandRange(-BulletSpread, BulletSpread);
-			End.Y += FMath::FRandRange(-BulletSpread, BulletSpread);
-			End.Z += FMath::FRandRange(-BulletSpread, BulletSpread);
+			if (OwnerComponent->GetIsAiming())
+			{
+				TargetSpread = WeaponType == EWeaponType::EWT_ShotGun ? AimBulletSpread : 0.0f;
+			}
+			else
+			{
+				TargetSpread = BulletSpread;
+			}
 		}
+		End.X += FMath::FRandRange(-TargetSpread, TargetSpread);
+		End.Y += FMath::FRandRange(-TargetSpread, TargetSpread);
+		End.Z += FMath::FRandRange(-TargetSpread, TargetSpread);
 
 		FCollisionObjectQueryParams ObjectParams;
 		ObjectParams.AddObjectTypesToQuery(ECC_WorldStatic);
 		ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 		ObjectParams.AddObjectTypesToQuery(ECC_PhysicsBody);
-		
+
 
 		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(Player);
+		Params.AddIgnoredActor(OwnerCharacter);
 		Params.bReturnPhysicalMaterial = true;
 
 		// DEBUG: Remove this code later.
@@ -119,7 +139,7 @@ void AFPWeaponBase::ApplyDamageOnHitScan(FHitResult HitResult)
 	}
 }
 
-void AFPWeaponBase::StartShooting_Implementation(AFPCharacter* InstigateActor, UFPWeaponSystemComponent* InstigateWeaponSystem)
+void AFPWeaponBase::StartShooting_Implementation()
 {
 	if (CurrentAmmo <= 0)
 	{
@@ -136,51 +156,57 @@ void AFPWeaponBase::StartShooting_Implementation(AFPCharacter* InstigateActor, U
 
 	if (CurrentAmmo <= 0)
 	{
-		// Only auto reload when using Grenade Launcher or Rocket Launcher.
-		if (WeaponType == EWeaponType::EWT_GrenadeLauncher || WeaponType == EWeaponType::EWT_GrenadeLauncher)
-		{
-			AutoReloadOnEmpty(InstigateActor);
-		}
+
 	}
 
 	switch (FireType)
 	{
-		case EFireType::EFT_HitScan:
+	case EFireType::EFT_HitScan:
+		{
+			if (WeaponType == EWeaponType::EWT_ShotGun)
 			{
-				if (WeaponType == EWeaponType::EWT_ShotGun)
+				for (int32 Index = 0; Index < PelletCount; Index++)
 				{
-					for (int32 Index = 0; Index < PelletCount; Index++)
-					{
-						FHitResult HitResult = CalculateLineTrace(InstigateActor);
-						SpawnImpactEffect(HitResult);
-						ApplyDamageOnHitScan(HitResult);
-					}
-				}
-				else
-				{
-					FHitResult HitResult = CalculateLineTrace(InstigateActor);
+					FHitResult HitResult = CalculateLineTrace();
 					SpawnImpactEffect(HitResult);
 					ApplyDamageOnHitScan(HitResult);
 				}
-				break;
 			}
-		case EFireType::EFT_Projectile:
+			else
 			{
-				break;
+				FHitResult HitResult = CalculateLineTrace();
+				SpawnImpactEffect(HitResult);
+				ApplyDamageOnHitScan(HitResult);
 			}
+			break;
+		}
+	case EFireType::EFT_Projectile:
+		{
+			break;
+		}
 	}
 
 	StartRecoil();
 	bIsShooting = true;
-	if (InstigateWeaponSystem)
+	if (OwnerComponent)
 	{
-		InstigateWeaponSystem->OnAmmoChanged.Broadcast(CurrentAmmo, TotalAmmo, AmmoTypeText);
+		OwnerComponent->OnAmmoChanged.Broadcast(CurrentAmmo, TotalAmmo, AmmoTypeText);
 	}
 }
 
-void AFPWeaponBase::StopShooting_Implementation(/*AFPCharacter* InstigateActor*/)
+void AFPWeaponBase::StopShooting_Implementation()
 {
 	bIsShooting = false;
+}
+
+void AFPWeaponBase::OnWeaponAimingEnter()
+{
+	bIsWeaponAiming = true;
+}
+
+void AFPWeaponBase::OnWeaponAimingExit()
+{
+	bIsWeaponAiming = false;
 }
 
 void AFPWeaponBase::StartRecoil()
@@ -254,28 +280,6 @@ bool AFPWeaponBase::AddTotalAmmo(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo)
 		return true;
 	}
 	return false;
-}
-
-void AFPWeaponBase::AutoReloadOnEmpty(AFPCharacter* InstigateActor)
-{
-	/*if (WeaponType == EWeaponType::EWT_SniperRifle)
-	{
-		FTimerHandle AutoReloadHandle;
-		FTimerDelegate Delegate;
-		Delegate.BindUFunction(this, "AutoReloadOnEmpty_TimeElapsed", InstigateActor);
-		GetWorld()->GetTimerManager().SetTimer(AutoReloadHandle, Delegate, 0.3f, false);
-	}
-	else
-	{
-		InstigateActor->Reload();
-	}*/
-
-	InstigateActor->Reload();
-}
-
-void AFPWeaponBase::AutoReloadOnEmpty_TimeElapsed(AFPCharacter* InstigateActor)
-{
-	InstigateActor->Reload();
 }
 
 void AFPWeaponBase::ReloadCalculate()

@@ -11,6 +11,14 @@ class UFPWeaponSystemComponent;
 class UFPMainHUD;
 class UTimelineComponent;
 
+UENUM()
+enum EMoveType
+{
+	EMT_NormalWalk		UMETA(DisplayName = "NormalWalk"),
+	EMT_AimWalk			UMETA(DisplayName = "AimWalk"),
+	EMT_Sprint			UMETA(DisplayName = "Sprint")
+};
+
 UCLASS()
 class FPSLEARNING_API AFPCharacter : public ACharacter
 {
@@ -54,16 +62,19 @@ protected:
 	float EnergyLevel;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
-	float MaxWalkSpeed;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
-	float MaxSprintSpeed;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
 	float StaminaRecoverDelay;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Sprint")
 	float ExhaustedRecoverDelay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Speed")
+	float MaxWalkSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Speed")
+	float MaxAimWalkSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement | Speed")
+	float MaxSprintSpeed;
 
 	FTimerHandle StaminaRecoverDelayHandle;
 	
@@ -78,6 +89,12 @@ protected:
 
 	UFUNCTION()
 	void StopFiring();
+
+	UFUNCTION()
+	void Aim();
+
+	UFUNCTION()
+	void StopAiming();
 
 	UFUNCTION(Category = "Movement | Sprint")
 	void UpdatingTimeline(float Value);
@@ -107,6 +124,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Mesh")
 	float PlayAnimMontageOnArm(UAnimMontage* AnimMontage, float InPlayRate = 1.0f);
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
+	void SetPlayerSpeed(EMoveType MoveType);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Mesh")
 	UCameraComponent* GetCamera();

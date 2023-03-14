@@ -8,6 +8,7 @@
 #include "FPWeaponSystemComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAmmoChanged, int32, CurrrentAmmo, int32, TotalAmmo, FText, AmmoType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAimStatusChanged);
 
 class AFPWeaponBase;
 class AFPCharacter;
@@ -36,14 +37,15 @@ protected:
 	bool bIsReloading;
 
 	UPROPERTY(BlueprintReadWrite, Category = "WeaponSystem | CharacterState")
+	bool bIsAiming;
+
+	UPROPERTY(BlueprintReadWrite, Category = "WeaponSystem | CharacterState")
 	bool bCanShoot;
 
 	UPROPERTY(BlueprintReadWrite, Category = "WeaponSystem | CharacterState")
 	bool bCanReload;
 
-	UPROPERTY(BlueprintReadWrite, Category = "WeaponSystem | CharacterState")
-	bool bIsAiming;
-
+	UPROPERTY()
 	AFPCharacter* OwnerCharacter;
 
 	UFUNCTION()
@@ -64,6 +66,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "WeaponSystem | Delegate")
 	FOnAmmoChanged OnAmmoChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "WeaponSystem | Delegate")
+	FOnAimStatusChanged OnAimEnter;
+
+	UPROPERTY(BlueprintAssignable, Category = "WeaponSystem | Delegate")
+	FOnAimStatusChanged OnAimExit;
 	
 	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | Weapon")
 	bool AddAmmoToWeapon(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo);
@@ -73,6 +81,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | Weapon")
 	void StopShooting();
+
+	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | Weapon")
+	void Aim();
+
+	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | Weapon")
+	void StopAiming();
 
 	UFUNCTION(BlueprintCallable, Category = "WeaponSystem | Weapon")
 	void ReloadWeapon();

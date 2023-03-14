@@ -9,6 +9,7 @@
 
 class UCameraComponent;
 class UTimelineComponent;
+class AFPCharacter;
 class UFPWeaponSystemComponent;
 class AFPImpactEffectBase;
 
@@ -29,13 +30,19 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UTimelineComponent* RecoilTimeline;
 
-	FHitResult CalculateLineTrace(AFPCharacter* Player);
+	FHitResult CalculateLineTrace();
 
 	void SpawnImpactEffect(FHitResult HitResult);
 
 	void ApplyDamageOnHitScan(FHitResult HitResult);
 
 public:
+	UPROPERTY(BlueprintReadOnly, Category = "Owner")
+	AFPCharacter* OwnerCharacter;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Owner")
+	UFPWeaponSystemComponent* OwnerComponent;
+
 	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
 	int32 ChamberAmmo;*/
 	
@@ -54,8 +61,32 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
 	bool bIsShooting;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon | Status")
+	bool bIsWeaponAiming;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon | Status | Shotgun")
 	bool bIsFireIntervalActive;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon | Status | Shotgun")
+	float AimBulletSpread;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute | Aim")
+	float XTransitionOffset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute | Aim")
+	float YTransitionOffset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute | Aim")
+	float ZTransitionOffset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute | Aim")
+	float XRotationOffset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute | Aim")
+	float YRotationOffset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute | Aim")
+	float ZRotationOffset;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	EWeaponType WeaponType;
@@ -117,12 +148,18 @@ public:
 	// TODO: Refactor this func into Action System.
 	// Do I really need to refactor this?
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon | Fire")
-	void StartShooting(AFPCharacter* InstigateActor, UFPWeaponSystemComponent* InstigateWeaponSystem);
+	void StartShooting();
 
 	// TODO: Refactor this func into Action System.
 	// Do I really need to refactor this?
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon | Fire")
-	void StopShooting(/*AFPCharacter* InstigateActor*/);
+	void StopShooting();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon | Aim")
+	void OnWeaponAimingEnter();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon | Aim")
+	void OnWeaponAimingExit();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
 	void StartRecoil();
@@ -151,12 +188,6 @@ public:
 	// TODO: Refactor this func into Inventory System, the weapon shouldn't contain the info of total ammo.
 	UFUNCTION(BlueprintCallable, Category = "Weapon | Ammo")
 	bool AddTotalAmmo(EAmmoType AcquiredAmmoType, int32 AcquiredAmmo);
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon | Ammo")
-	void AutoReloadOnEmpty(AFPCharacter* InstigateActor);
-
-	UFUNCTION()
-	void AutoReloadOnEmpty_TimeElapsed(AFPCharacter* InstigateActor);
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon | Ammo")
 	void ReloadCalculate();
