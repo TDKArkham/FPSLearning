@@ -8,7 +8,7 @@ public class FPSLearning : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "PHYSICSCORE" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "PHYSICSCORE", "SlateCore" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

@@ -3,9 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WeaponData.h"
 #include "Components/ActorComponent.h"
 #include "FPAttributeComponent.generated.h"
 
+class UFPAttributeComponent;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnAttributeChanged, AActor*, InstigateActor, UFPAttributeComponent*, OwnerComponent, float, NewValue, float, Delta, FDamageResult, DamageResult);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class FPSLEARNING_API UFPAttributeComponent : public UActorComponent
@@ -14,11 +18,18 @@ class FPSLEARNING_API UFPAttributeComponent : public UActorComponent
 
 public:
 	UFPAttributeComponent();
+
+	virtual void BeginPlay() override;
+public:
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
 	float MaxHealth;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
 	float CurrentHealth;
+
+	UPROPERTY(BlueprintAssignable, Category = "Health")
+	FOnAttributeChanged OnHealthChanged;
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	bool ApplyHealthChange(float Delta, FHitResult HitResult, AActor* InstigateActor);

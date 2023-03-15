@@ -38,14 +38,43 @@ enum class EAmmoType : uint8
 	EAT_RocketLauncherAmmo	UMETA(DisplayName = "RocketLauncherAmmo"),
 };
 
+UENUM(BlueprintType)
+enum class EHitType : uint8
+{
+	EHT_NormalHit		UMETA(DisplayName = "NormalHit"),
+	EHT_DeathHit		UMETA(DisplayName = "DeathHit")
+};
+
 USTRUCT(BlueprintType)
 struct FDamageData
 {
 	GENERATED_BODY()
 
-		UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		float Damage;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float Damage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-		float ImpactRadius;
+	float ImpactRadius;
+};
+
+USTRUCT(BlueprintType)
+struct FDamageResult
+{
+	GENERATED_BODY()
+
+	FDamageResult()
+	{
+		DamageLocation = FVector::ZeroVector;
+		PhysicalSurfaceType = EPhysicalSurface::SurfaceType_Default;
+		HitType = EHitType::EHT_NormalHit;
+	}
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FVector DamageLocation;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TEnumAsByte<EPhysicalSurface> PhysicalSurfaceType;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	EHitType HitType;
 };

@@ -3,6 +3,7 @@
 
 #include "FPAttributeComponent.h"
 
+#include "WeaponData.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 
 
@@ -12,22 +13,40 @@ UFPAttributeComponent::UFPAttributeComponent()
 	CurrentHealth = 100.0f;
 }
 
+void UFPAttributeComponent::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
 bool UFPAttributeComponent::ApplyHealthChange(float Delta, FHitResult HitResult, AActor* InstigateActor)
 {
+	FDamageResult DamageResult;
+	DamageResult.DamageLocation = HitResult.ImpactPoint;
+
 	const float OldHealth = CurrentHealth;
-	const float DamageScale = HitResult.PhysMaterial.Get() ? HitResult.PhysMaterial.Get()->DestructibleDamageThresholdScale : 1.0f;
+
+	float DamageScale = 1.0f;
+	if (HitResult.PhysMaterial.Get())
+	{
+		DamageResult.PhysicalSurfaceType = HitResult.PhysMaterial->SurfaceType;
+		DamageScale = HitResult.PhysMaterial.Get()->DestructibleDamageThresholdScale;
+	}
+
 	CurrentHealth = FMath::Clamp(CurrentHealth + Delta * DamageScale, 0.0f, MaxHealth);
 	const float TrueDelta = CurrentHealth - OldHealth;
 
-	// DEBUG: Remove this code later.
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, FString::SanitizeFloat(TrueDelta));
-
+	// Enemy dead.
 	if (TrueDelta < 0.0f && CurrentHealth <= 0.0f)
 	{
-		// TODO: Character Dead.
+		DamageResult.HitType = EHitType::EHT_DeathHit;
 	}
 
-	return TrueDelta != 0.0f;
+	if(TrueDelta != 0)
+	{
+		OnHealthChanged.Broadcast(InstigateActor, this, CurrentHealth, TrueDelta, DamageResult);
+	}
+
+	return Delta != 0.0f;
 }
 
 bool UFPAttributeComponent::GetIsAlive() const
