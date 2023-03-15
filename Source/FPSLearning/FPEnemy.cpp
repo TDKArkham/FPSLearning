@@ -9,6 +9,8 @@
 #include "FPAttributeComponent.h"
 #include "Blueprint/UserWidget.h"
 
+static TAutoConsoleVariable<bool> CVarShowDamage(TEXT("fp.ToggleDamagePopUp"), true, TEXT("Taggole Whether to Show Damage PopUp or Not"));
+
 AFPEnemy::AFPEnemy()
 {
 	AttributeComponent = CreateDefaultSubobject<UFPAttributeComponent>(TEXT("AttributeComponent"));
@@ -29,14 +31,14 @@ bool AFPEnemy::TakeDamage_Implementation(FDamageData DamageData, FHitResult HitR
 }
 
 void AFPEnemy::OnHealthChanged(AActor* InstigateActor, UFPAttributeComponent* OwnerComponent, float NewValue,
-	float Delta, FDamageResult DamageResult)
+							   float Delta, FDamageResult DamageResult)
 {
-	if(Delta < 0.0f)
+	if (Delta < 0.0f)
 	{
-		if(HitMark == nullptr)
+		if (HitMark == nullptr)
 		{
 			HitMark = CreateWidget<UFPHitMark>(GetWorld(), HitMarkClass);
-			if(HitMark)
+			if (HitMark)
 			{
 				HitMark->AddToViewport();
 				HitMark->ActivateAnim(DamageResult.HitType);
@@ -47,12 +49,14 @@ void AFPEnemy::OnHealthChanged(AActor* InstigateActor, UFPAttributeComponent* Ow
 			HitMark->ActivateAnim(DamageResult.HitType);
 		}
 
-		UFPDamageNumber* DamagePopUp = CreateWidget<UFPDamageNumber>(GetWorld(), DamageNumberClass);
-		if(DamagePopUp)
+		if (CVarShowDamage.GetValueOnGameThread())
 		{
-			DamagePopUp->AddToViewport();
-			DamagePopUp->Activate(Delta, DamageResult);
+			UFPDamageNumber* DamagePopUp = CreateWidget<UFPDamageNumber>(GetWorld(), DamageNumberClass);
+			if (DamagePopUp)
+			{
+				DamagePopUp->AddToViewport();
+				DamagePopUp->Activate(Delta, DamageResult);
+			}
 		}
-		
 	}
 }
