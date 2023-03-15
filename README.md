@@ -13,5 +13,5 @@ Params.bReturnPhysicalMaterial = true;
 
 ## Tip2(P30)
 
-The rocket launcher have some weird clipping when aiming, the way to fix it is go to **ProjectSettings -> Engine -> GeneralSettings -> Settings** and change the **Near Clip Plane** number, set it to a small number, and the weird clipping thing will be fixed.
-***Note that it requires a restart of editor to take effect.***
+The rocket launcher have some weird graphics clipping when aiming, the way to fix it is go to **ProjectSettings -> Engine -> GeneralSettings -> Settings** and change the **Near Clip Plane** number, set it to a small number, and the weird graphics clipping thing will be fixed.  
+***Note that this requires a restart of editor to take effect.***
