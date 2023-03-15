@@ -3,7 +3,11 @@
 
 #include "FPAttributeComponent.h"
 
+#include "FPWeaponBase.h"
+#include "FPWeaponSystemComponent.h"
 #include "WeaponData.h"
+#include "GameFramework/Character.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 
 
@@ -25,6 +29,7 @@ bool UFPAttributeComponent::ApplyHealthChange(float Delta, FHitResult HitResult,
 
 	const float OldHealth = CurrentHealth;
 
+	// Calculate damage by surface type.
 	float DamageScale = 1.0f;
 	if (HitResult.PhysMaterial.Get())
 	{
@@ -32,16 +37,37 @@ bool UFPAttributeComponent::ApplyHealthChange(float Delta, FHitResult HitResult,
 		DamageScale = HitResult.PhysMaterial.Get()->DestructibleDamageThresholdScale;
 	}
 
+	// Calculate true delta.
 	CurrentHealth = FMath::Clamp(CurrentHealth + Delta * DamageScale, 0.0f, MaxHealth);
 	const float TrueDelta = CurrentHealth - OldHealth;
 
 	// Enemy dead.
-	if (TrueDelta < 0.0f && CurrentHealth <= 0.0f)
+	if (TrueDelta <= 0.0f && CurrentHealth <= 0.0f)
 	{
 		DamageResult.HitType = EHitType::EHT_DeathHit;
+
+		// TODO: Maybe remove these to some where else later.
+		ACharacter* Character = Cast<ACharacter>(HitResult.GetActor());
+		if (Character)
+		{
+			if (Character->GetMesh()->IsSimulatingPhysics())
+			{
+				UFPWeaponSystemComponent* WeaponSystem = UFPWeaponSystemComponent::GetWeaponSystemComponent(InstigateActor);
+				if (WeaponSystem)
+				{
+					AFPWeaponBase* Weapon = WeaponSystem->GetCurrentWeapon();
+					if (Weapon)
+					{
+						FVector Impulse = UKismetMathLibrary::GetDirectionUnitVector(Weapon->GetActorLocation(), Character->GetActorLocation()) * Weapon->ImpulseStrength;
+						Character->GetMesh()->AddImpulseAtLocation(Impulse, DamageResult.DamageLocation, HitResult.BoneName);
+					}
+				}
+			}
+		}
+
 	}
 
-	if(TrueDelta != 0)
+	if (TrueDelta != 0)
 	{
 		OnHealthChanged.Broadcast(InstigateActor, this, CurrentHealth, TrueDelta, DamageResult);
 	}
@@ -52,4 +78,15 @@ bool UFPAttributeComponent::ApplyHealthChange(float Delta, FHitResult HitResult,
 bool UFPAttributeComponent::GetIsAlive() const
 {
 	return CurrentHealth > 0.0f;
+}
+
+bool UFPAttributeComponent::GetIsActorAlive(AActor* TargetActor)
+{
+	const UFPAttributeComponent* AttributeComponent = GetAttributeComponent(TargetActor);
+	return AttributeComponent ? AttributeComponent->GetIsAlive() : false;
+}
+
+UFPAttributeComponent* UFPAttributeComponent::GetAttributeComponent(AActor* TargetActor)
+{
+	return TargetActor ? Cast<UFPAttributeComponent>(TargetActor->GetComponentByClass(StaticClass())) : nullptr;
 }

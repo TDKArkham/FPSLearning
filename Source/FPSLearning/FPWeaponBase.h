@@ -150,6 +150,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Effect")
 	TSubclassOf<AFPImpactEffectBase> ImpactEffectClass;
+
+	/**
+	 * @brief Determines the impulse strength this weapon can apply to a "Dead" enemy.
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Effect")
+	float ImpulseStrength;
 	
 	// TODO: Refactor this func into Action System.
 	// Do I really need to refactor this?

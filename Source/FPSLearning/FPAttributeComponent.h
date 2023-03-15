@@ -34,6 +34,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	bool ApplyHealthChange(float Delta, FHitResult HitResult, AActor* InstigateActor);
 
-	UFUNCTION(BlueprintCallable, Category = "Health")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
 	bool GetIsAlive() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
+	static bool GetIsActorAlive(AActor* TargetActor);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
+	static UFPAttributeComponent* GetAttributeComponent(AActor* TargetActor);
 };

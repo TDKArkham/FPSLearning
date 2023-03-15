@@ -4,6 +4,7 @@
 #include "FPWeaponBase.h"
 
 #include "DrawDebugHelpers.h"
+#include "FPAttributeComponent.h"
 #include "FPCharacter.h"
 #include "FPDamageInterface.h"
 #include "FPImpactEffectBase.h"
@@ -47,6 +48,8 @@ AFPWeaponBase::AFPWeaponBase()
 
 	VerticalRecoil = -0.05f;
 	HorizontalRecoil = 0.15f;
+
+	ImpulseStrength = 10000.0f;
 }
 
 void AFPWeaponBase::BeginPlay()
@@ -105,7 +108,6 @@ FHitResult AFPWeaponBase::CalculateLineTrace()
 		ObjectParams.AddObjectTypesToQuery(ECC_WorldDynamic);
 		ObjectParams.AddObjectTypesToQuery(ECC_PhysicsBody);
 
-
 		FCollisionQueryParams Params;
 		Params.AddIgnoredActor(OwnerCharacter);
 		Params.bReturnPhysicalMaterial = true;
@@ -138,7 +140,7 @@ void AFPWeaponBase::ApplyDamageOnHitScan(FHitResult HitResult)
 	AActor* HitActor = HitResult.GetActor();
 	if (HitActor && HitActor->Implements<UFPDamageInterface>())
 	{
-		IFPDamageInterface::Execute_TakeDamage(HitActor, DamageData, HitResult, this);
+		IFPDamageInterface::Execute_TakeDamage(HitActor, DamageData, HitResult, OwnerCharacter);
 	}
 }
 

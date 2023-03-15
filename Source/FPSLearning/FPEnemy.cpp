@@ -7,7 +7,11 @@
 #include "FPHitMark.h"
 #include "FPDamageNumber.h"
 #include "FPAttributeComponent.h"
+#include "FPWeaponBase.h"
+#include "FPWeaponSystemComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 static TAutoConsoleVariable<bool> CVarShowDamage(TEXT("fp.ToggleDamagePopUp"), true, TEXT("Taggole Whether to Show Damage PopUp or Not"));
 
@@ -57,6 +61,16 @@ void AFPEnemy::OnHealthChanged(AActor* InstigateActor, UFPAttributeComponent* Ow
 				DamagePopUp->AddToViewport();
 				DamagePopUp->Activate(Delta, DamageResult);
 			}
+		}
+
+		if (NewValue == 0.0f)
+		{
+			// Set Ragdoll
+			GetMesh()->SetSimulatePhysics(true);
+			GetMesh()->SetCollisionProfileName("Ragdoll");
+
+			// Disable Collision
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		}
 	}
 }
