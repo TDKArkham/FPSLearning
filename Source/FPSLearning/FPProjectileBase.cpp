@@ -16,6 +16,7 @@ AFPProjectileBase::AFPProjectileBase()
 
 	SphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
 	SphereCollision->SetNotifyRigidBodyCollision(true);
+	SphereCollision->SetCollisionProfileName("Projectile");
 
 	RootComponent = SphereCollision;
 
@@ -33,7 +34,7 @@ void AFPProjectileBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ProjectileMovement->OnProjectileStop.AddDynamic(this, &AFPProjectileBase::OnProjectileStop);
+	SphereCollision->OnComponentHit.AddDynamic(this, &AFPProjectileBase::OnComponentHit);
 	SphereCollision->MoveIgnoreActors.Add(GetOwner());
 	SphereCollision->MoveIgnoreActors.Add(GetInstigator());
 
@@ -45,9 +46,10 @@ void AFPProjectileBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AFPProjectileBase::OnProjectileStop(const FHitResult& ImpactResult)
+void AFPProjectileBase::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	StopProjectile(ImpactResult);
+	StopProjectile(Hit);
 }
 
 void AFPProjectileBase::StopProjectile(FHitResult HitResult)

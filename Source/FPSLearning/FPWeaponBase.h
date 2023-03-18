@@ -173,11 +173,11 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon | Fire")
 	void StopShooting();
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon | Aim")
-	void OnWeaponAimingEnter();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon | Aim")
+	void OnWeaponAimingEnter(AActor* CurrentWeapon);
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon | Aim")
-	void OnWeaponAimingExit();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon | Aim")
+	void OnWeaponAimingExit(AActor* CurrentWeapon);
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon | Fire")
 	void StartRecoil();

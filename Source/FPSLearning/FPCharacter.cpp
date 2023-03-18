@@ -32,8 +32,11 @@ AFPCharacter::AFPCharacter()
 	ExhaustedRecoverDelay = 5.0f;
 
 	FOVInterpSpeed = 7.0f;
-}
 
+	HorizontalADSCameraSpeedScale = 0.6f;
+	VerticalADSCameraSpeedScale = 0.4f;
+}
+		
 void AFPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -74,8 +77,8 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AFPCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AFPCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &AFPCharacter::LookUp);
+	PlayerInputComponent->BindAxis("Turn", this, &AFPCharacter::Turn);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
@@ -90,6 +93,18 @@ void AFPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &AFPCharacter::StopAiming);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &AFPCharacter::Reload);
+}
+
+void AFPCharacter::LookUp(float Value)
+{
+	Value = WeaponSystem->GetIsAiming() ? (Value * VerticalADSCameraSpeedScale) : Value;
+	AddControllerPitchInput(Value);
+}
+
+void AFPCharacter::Turn(float Value)
+{
+	Value = WeaponSystem->GetIsAiming() ? (Value * HorizontalADSCameraSpeedScale) : Value;
+	AddControllerYawInput(Value);
 }
 
 void AFPCharacter::MoveForward(float Axis)

@@ -14,7 +14,7 @@
 #include "Camera/CameraComponent.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "Kismet/KismetMathLibrary.h"
 
 AFPWeaponBase::AFPWeaponBase()
 {
@@ -128,12 +128,23 @@ FHitResult AFPWeaponBase::CalculateLineTrace()
 
 FTransform AFPWeaponBase::CalculateProjectile(FName WeaponSocketName)
 {
-	FTransform ProjectileTransform;
-	ProjectileTransform.SetTranslation(SkeletalMeshComponent->GetSocketLocation(WeaponSocketName));
+	FVector SpawnLocation = SkeletalMeshComponent->GetSocketLocation(WeaponSocketName);
 
-	if (OwnerCharacter)
+	FTransform ProjectileTransform;
+	ProjectileTransform.SetTranslation(SpawnLocation);
+
+	if (WeaponType == EWeaponType::EWT_SniperRifle)
 	{
-		ProjectileTransform.SetRotation(OwnerCharacter->GetControlRotation().Quaternion());
+		FHitResult TargetFindResult = CalculateLineTrace();
+		FRotator BulletSpeedDirection = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, TargetFindResult.ImpactPoint);
+		ProjectileTransform.SetRotation(BulletSpeedDirection.Quaternion());
+	}
+	else
+	{
+		if (OwnerCharacter)
+		{
+			ProjectileTransform.SetRotation(OwnerCharacter->GetControlRotation().Quaternion());
+		}
 	}
 
 	return ProjectileTransform;
@@ -222,12 +233,12 @@ void AFPWeaponBase::StopShooting_Implementation()
 	bIsShooting = false;
 }
 
-void AFPWeaponBase::OnWeaponAimingEnter()
+void AFPWeaponBase::OnWeaponAimingEnter_Implementation(AActor* CurrentWeapon)
 {
 	bIsWeaponAiming = true;
 }
 
-void AFPWeaponBase::OnWeaponAimingExit()
+void AFPWeaponBase::OnWeaponAimingExit_Implementation(AActor* CurrentWeapon)
 {
 	bIsWeaponAiming = false;
 }

@@ -138,7 +138,7 @@ void UFPWeaponSystemComponent::Aim()
 	{
 		bIsAiming = true;
 
-		OnAimEnter.Broadcast();
+		OnAimEnter.Broadcast(CurrentWeapon);
 
 		if (OwnerCharacter)
 		{
@@ -154,7 +154,7 @@ void UFPWeaponSystemComponent::Aim()
 void UFPWeaponSystemComponent::StopAiming()
 {
 	bIsAiming = false;
-	OnAimExit.Broadcast();
+	OnAimExit.Broadcast(CurrentWeapon);
 
 	if (OwnerCharacter)
 	{

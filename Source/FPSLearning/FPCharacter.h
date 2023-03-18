@@ -81,7 +81,19 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement | Aim")
 	float FOVInterpSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Control | Aim")
+	float HorizontalADSCameraSpeedScale;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Control | Aim")
+	float VerticalADSCameraSpeedScale;
+
 	FTimerHandle StaminaRecoverDelayHandle;
+
+	UFUNCTION()
+	void LookUp(float Value);
+
+	UFUNCTION()
+	void Turn(float Value);
 	
 	UFUNCTION()
 	void MoveForward(float Axis);

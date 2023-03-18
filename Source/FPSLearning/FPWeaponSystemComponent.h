@@ -8,7 +8,7 @@
 #include "FPWeaponSystemComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAmmoChanged, int32, CurrrentAmmo, int32, TotalAmmo, FText, AmmoType);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAimStatusChanged);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAimStatusChanged, AActor*, CurrentWeapon);
 
 class AFPWeaponBase;
 class AFPCharacter;
