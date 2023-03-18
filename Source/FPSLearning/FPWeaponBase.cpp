@@ -7,7 +7,9 @@
 #include "FPAttributeComponent.h"
 #include "FPCharacter.h"
 #include "FPDamageInterface.h"
+#include "FPGameplayFunctionLibrary.h"
 #include "FPImpactEffectBase.h"
+#include "FPProjectileBase.h"
 #include "FPWeaponSystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/TimelineComponent.h"
@@ -112,9 +114,9 @@ FHitResult AFPWeaponBase::CalculateLineTrace()
 		Params.AddIgnoredActor(OwnerCharacter);
 		Params.bReturnPhysicalMaterial = true;
 
-		// DEBUG: Remove this code later.
 		GetWorld()->LineTraceSingleByObjectType(HitResult, Start, End, ObjectParams, Params);
 
+		// DEBUG: Remove this code later.
 		FColor Color = HitResult.Actor.IsValid() ? FColor::Green : FColor::Red;
 		DrawDebugLine(GetWorld(), Start, End, Color, false, 3.0f);
 
@@ -124,14 +126,28 @@ FHitResult AFPWeaponBase::CalculateLineTrace()
 	return HitResult;
 }
 
-void AFPWeaponBase::SpawnImpactEffect(FHitResult HitResult)
+FTransform AFPWeaponBase::CalculateProjectile(FName WeaponSocketName)
 {
-	if (ensure(ImpactEffectClass))
+	FTransform ProjectileTransform;
+	ProjectileTransform.SetTranslation(SkeletalMeshComponent->GetSocketLocation(WeaponSocketName));
+
+	if (OwnerCharacter)
 	{
-		const FTransform SpawnTransform(HitResult.ImpactPoint);
-		AFPImpactEffectBase* ImpactEffect = Cast<AFPImpactEffectBase>(UGameplayStatics::BeginDeferredActorSpawnFromClass(GetWorld(), ImpactEffectClass, SpawnTransform));
-		ImpactEffect->HitResult = HitResult;
-		UGameplayStatics::FinishSpawningActor(ImpactEffect, SpawnTransform);
+		ProjectileTransform.SetRotation(OwnerCharacter->GetControlRotation().Quaternion());
+	}
+
+	return ProjectileTransform;
+}
+
+void AFPWeaponBase::SpawnProjectile(FTransform SpawnTransform)
+{
+	if (ensure(ProjectileClass))
+	{
+		AFPProjectileBase* Projectile = Cast<AFPProjectileBase>(UGameplayStatics::BeginDeferredActorSpawnFromClass(GetWorld(), ProjectileClass, SpawnTransform, ESpawnActorCollisionHandlingMethod::AlwaysSpawn));
+		Projectile->SetDamageData(DamageData);
+		Projectile->SetOwner(this);
+		Projectile->SetInstigator(OwnerCharacter);
+		UGameplayStatics::FinishSpawningActor(Projectile, SpawnTransform);
 	}
 }
 
@@ -173,20 +189,22 @@ void AFPWeaponBase::StartShooting_Implementation()
 				for (int32 Index = 0; Index < PelletCount; Index++)
 				{
 					FHitResult HitResult = CalculateLineTrace();
-					SpawnImpactEffect(HitResult);
+					UFPGameplayFunctionLibrary::SpawnImpactEffect(ImpactEffectClass, HitResult);
 					ApplyDamageOnHitScan(HitResult);
 				}
 			}
 			else
 			{
 				FHitResult HitResult = CalculateLineTrace();
-				SpawnImpactEffect(HitResult);
+				UFPGameplayFunctionLibrary::SpawnImpactEffect(ImpactEffectClass, HitResult);
 				ApplyDamageOnHitScan(HitResult);
 			}
 			break;
 		}
 	case EFireType::EFT_Projectile:
 		{
+			// TODO: Promote the socket name to a variable later when changing the weapon pack.
+			SpawnProjectile(CalculateProjectile("MuzzleFlash"));
 			break;
 		}
 	}

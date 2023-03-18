@@ -12,6 +12,7 @@ class UTimelineComponent;
 class AFPCharacter;
 class UFPWeaponSystemComponent;
 class AFPImpactEffectBase;
+class AFPProjectileBase;
 
 UCLASS()
 class FPSLEARNING_API AFPWeaponBase : public AActor
@@ -32,7 +33,9 @@ protected:
 
 	FHitResult CalculateLineTrace();
 
-	void SpawnImpactEffect(FHitResult HitResult);
+	FTransform CalculateProjectile(FName WeaponSocketName);
+
+	void SpawnProjectile(FTransform SpawnTransform);
 
 	void ApplyDamageOnHitScan(FHitResult HitResult);
 
@@ -150,6 +153,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Effect")
 	TSubclassOf<AFPImpactEffectBase> ImpactEffectClass;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Projectile")
+	TSubclassOf<AFPProjectileBase> ProjectileClass;
 
 	/**
 	 * @brief Determines the impulse strength this weapon can apply to a "Dead" enemy.
