@@ -91,6 +91,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute | Aim")
 	float ZRotationOffset;
 
+
+	/**
+	 * @brief Determines how long it takes to change from normal animation to aim animation
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute | Aim")
+	float BlendInTime;
+
+
+	/**
+	 * @brief Determines how long it takes to change from aim animation to normal animation
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Weapon | Attribute | Aim")
+	float BlendOutTime;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Weapon | Attribute")
 	EWeaponType WeaponType;
 

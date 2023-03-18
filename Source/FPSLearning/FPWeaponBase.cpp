@@ -45,6 +45,9 @@ AFPWeaponBase::AFPWeaponBase()
 	AimFieldOfView = 70.0f;
 	HipFieldOfView = 90.0f;
 
+	BlendInTime = 0.1f;
+	BlendOutTime = 0.1f;
+
 	DamageData.Damage = 20.0f;
 	DamageData.ImpactRadius = 50.0f;
 
