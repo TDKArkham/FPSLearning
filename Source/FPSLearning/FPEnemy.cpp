@@ -37,6 +37,11 @@ bool AFPEnemy::TakeDamage_Implementation(FDamageData DamageData, FHitResult HitR
 void AFPEnemy::OnHealthChanged(AActor* InstigateActor, UFPAttributeComponent* OwnerComponent, float NewValue,
 							   float Delta, FDamageResult DamageResult)
 {
+	if(OwnerComponent != AttributeComponent)
+	{
+		return;
+	}
+
 	if (Delta < 0.0f)
 	{
 		if (HitMark == nullptr)

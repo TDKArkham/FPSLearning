@@ -26,4 +26,5 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Damage")
 	bool TakeDamage(FDamageData DamageData, FHitResult HitResult, AActor* InstigateActor);
+
 };

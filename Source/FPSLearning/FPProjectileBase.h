@@ -57,6 +57,8 @@ protected:
 	UFUNCTION()
 	void ExplodeProjectile(FHitResult HitResult);
 
+	void FinishDamage(FHitResult HitResult);
+
 public:
 
 	void SetDamageData(FDamageData NewDamageData);

@@ -34,6 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	bool ApplyHealthChange(float Delta, FHitResult HitResult, AActor* InstigateActor);
 
+	// TODO: Maybe remove this function to some where else later.
+	void ApplyImpulse(FHitResult& HitResult, AActor* InstigateActor);
+
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Health")
 	bool GetIsAlive() const;
 

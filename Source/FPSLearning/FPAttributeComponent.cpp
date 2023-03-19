@@ -46,25 +46,7 @@ bool UFPAttributeComponent::ApplyHealthChange(float Delta, FHitResult HitResult,
 	{
 		DamageResult.HitType = EHitType::EHT_DeathHit;
 
-		// TODO: Maybe remove these to some where else later.
-		ACharacter* Character = Cast<ACharacter>(HitResult.GetActor());
-		if (Character)
-		{
-			if (Character->GetMesh()->IsSimulatingPhysics())
-			{
-				UFPWeaponSystemComponent* WeaponSystem = UFPWeaponSystemComponent::GetWeaponSystemComponent(InstigateActor);
-				if (WeaponSystem)
-				{
-					AFPWeaponBase* Weapon = WeaponSystem->GetCurrentWeapon();
-					if (Weapon)
-					{
-						FVector Impulse = UKismetMathLibrary::GetDirectionUnitVector(Weapon->GetActorLocation(), Character->GetActorLocation()) * Weapon->ImpulseStrength;
-						Character->GetMesh()->AddImpulseAtLocation(Impulse, DamageResult.DamageLocation, HitResult.BoneName);
-					}
-				}
-			}
-		}
-
+		ApplyImpulse(HitResult, InstigateActor);
 	}
 
 	if (TrueDelta != 0)
@@ -73,6 +55,27 @@ bool UFPAttributeComponent::ApplyHealthChange(float Delta, FHitResult HitResult,
 	}
 
 	return Delta != 0.0f;
+}
+
+void UFPAttributeComponent::ApplyImpulse(FHitResult& HitResult, AActor* InstigateActor)
+{
+	ACharacter* Character = Cast<ACharacter>(HitResult.GetActor());
+	if (Character)
+	{
+		if (Character->GetMesh()->IsSimulatingPhysics())
+		{
+			UFPWeaponSystemComponent* WeaponSystem = UFPWeaponSystemComponent::GetWeaponSystemComponent(InstigateActor);
+			if (WeaponSystem)
+			{
+				AFPWeaponBase* Weapon = WeaponSystem->GetCurrentWeapon();
+				if (Weapon)
+				{
+					FVector Impulse = -HitResult.ImpactNormal * Weapon->ImpulseStrength;
+					Character->GetMesh()->AddImpulseAtLocation(Impulse, HitResult.ImpactPoint, HitResult.BoneName);
+				}
+			}
+		}
+	}
 }
 
 bool UFPAttributeComponent::GetIsAlive() const

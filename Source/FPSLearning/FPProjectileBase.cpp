@@ -47,14 +47,14 @@ void AFPProjectileBase::Tick(float DeltaTime)
 }
 
 void AFPProjectileBase::OnComponentHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+									   UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	StopProjectile(Hit);
 }
 
 void AFPProjectileBase::StopProjectile(FHitResult HitResult)
 {
-	if(bIsRadiusDamage)
+	if (bIsRadiusDamage)
 	{
 		ExplodeProjectile(HitResult);
 	}
@@ -67,15 +67,54 @@ void AFPProjectileBase::StopProjectile(FHitResult HitResult)
 		}
 	}
 
+	FinishDamage(HitResult);
+}
+
+void AFPProjectileBase::ExplodeProjectile(FHitResult HitResult)
+{
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(EObjectTypeQuery::ObjectTypeQuery2);		// WorldDynamic
+	ObjectTypes.Add(EObjectTypeQuery::ObjectTypeQuery4);		// PhysicsBody
+
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+	ActorsToIgnore.Add(GetOwner());
+
+	TArray<FHitResult> HitResults;
+
+	bool bIsHit = UKismetSystemLibrary::SphereTraceMultiForObjects(GetWorld(), HitResult.ImpactPoint, HitResult.ImpactPoint,
+																   DamageData.ImpactRadius, ObjectTypes, false, ActorsToIgnore,
+																   EDrawDebugTrace::Type::None, HitResults, true);
+	if (bIsHit)
+	{
+		AActor* HitActor = nullptr;
+		TArray<AActor*> HitActors;
+		for (FHitResult NewHitResult : HitResults)
+		{
+			if (HitActor == NewHitResult.GetActor() || HitActors.Contains(NewHitResult.GetActor()))
+			{
+				continue;
+			}
+			HitActor = NewHitResult.GetActor();
+			HitActors.Add(HitActor);
+			if (HitActor && HitActor->Implements<UFPDamageInterface>())
+			{
+				IFPDamageInterface::Execute_TakeDamage(HitActor, DamageData, NewHitResult, OwnerCharacter);
+			}
+		}
+	}
+
+	FinishDamage(HitResult);
+}
+
+void AFPProjectileBase::FinishDamage(FHitResult HitResult)
+{
+
 	MeshComponent->SetVisibility(false);
 
 	UFPGameplayFunctionLibrary::SpawnImpactEffect(ImpactEffectClass, HitResult);
 
 	SetLifeSpan(0.1f);
-}
-
-void AFPProjectileBase::ExplodeProjectile(FHitResult HitResult)
-{
 }
 
 void AFPProjectileBase::SetDamageData(FDamageData NewDamageData)
