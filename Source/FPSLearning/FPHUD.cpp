@@ -16,10 +16,9 @@ void AFPHUD::BeginPlay()
 void AFPHUD::DrawHUD()
 {
 	Super::DrawHUD();
-	/*if (OwnerWeaponSystem && !OwnerWeaponSystem->GetIsAiming())
+	if (OwnerWeaponSystem && !OwnerWeaponSystem->GetIsAiming())
 	{
+		DrawRect(FColor::White, Canvas->SizeX * 0.5f, Canvas->SizeY * 0.5f, 2.0f, 2.0f);
+	}
 		
-	}*/
-
-	DrawRect(FColor::White, Canvas->SizeX * 0.5f, Canvas->SizeY * 0.5f, 2.0f, 2.0f);
 }

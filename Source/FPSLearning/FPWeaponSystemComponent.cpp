@@ -185,7 +185,7 @@ void UFPWeaponSystemComponent::ReloadWeapon()
 					CurrentWeapon->StopShooting();
 				}
 
-				if (!bIsReloading || !bIsSwitchingWeapon)
+				if (!bIsReloading && !bIsSwitchingWeapon)
 				{
 					bIsReloading = true;
 					bCanShoot = false;
