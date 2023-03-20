@@ -20,4 +20,4 @@ The rocket launcher have some weird graphics clipping when aiming, the way to fi
 
 - Merge this project with my previous [Inventory System](https://github.com/TDKArkham/SpatialInventory).  
 - Replace the weapon assets with some other higher quality assets like [these](https://www.unrealengine.com/marketplace/zh-CN/profile/Rebel+Thorp?count=20&sortBy=effectiveDate&sortDir=DESC&start=0).  
-- Optimize the logic and expend the project to make a S.T.L.K.E.R.-Fallout post-apocalypse game (A Fallout game but with S.T.L.K.E.R. atmosphere).  
+- Optimize the logic and expend the project to make a S.T.L.K.E.R.-Fallout post-apocalypse game (A Fallout-like game but with a S.T.L.K.E.R. atmosphere).  
